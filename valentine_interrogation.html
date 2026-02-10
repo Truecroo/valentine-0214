@@ -111,71 +111,130 @@
         .progress-bond { background: var(--bond-color); }
         .label { font-size: 0.8em; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Бумажка с проявляющимся словом */
-        .paper-note {
-            margin-top: auto; padding-top: 10px;
-            background: #1a1a17;
-            border: 1px solid #2a2a22;
-            padding: 12px 10px;
+        /* === БЛОКНОТ ПСИХОЛОГА + ГЛАЗ === */
+        .psych-panel {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Глаз */
+        .eye-monitor {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+        }
+        .eye-container {
+            width: 36px; height: 20px;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .eye-shape {
+            width: 100%; height: 100%;
+            border: 1.5px solid #555;
+            border-radius: 50%;
             position: relative;
             overflow: hidden;
-            cursor: default;
+            transition: border-color 0.5s;
         }
-        .paper-note::before {
-            content: '';
-            position: absolute; inset: 0;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent 0px,
-                rgba(100, 90, 60, 0.03) 1px,
-                transparent 2px
-            );
-            pointer-events: none;
+        .eye-pupil {
+            width: 8px; height: 8px;
+            background: #888;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.8s, height 0.8s, background 0.8s, box-shadow 0.8s;
         }
-        .paper-label {
-            font-size: 0.5em;
-            color: #3a3a30;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 8px;
+        /* Уровни зрачка */
+        .eye-pupil.dilate-1 { width: 9px; height: 9px; background: #999; }
+        .eye-pupil.dilate-2 { width: 11px; height: 11px; background: #aa5555; box-shadow: 0 0 4px rgba(170,85,85,0.3); }
+        .eye-pupil.dilate-3 { width: 13px; height: 13px; background: #cc3333; box-shadow: 0 0 8px rgba(204,51,51,0.5); }
+        .eye-pupil.dilate-4 { width: 16px; height: 16px; background: #ff0000; box-shadow: 0 0 12px rgba(255,0,0,0.7); }
+        /* Моргание */
+        .eye-shape.blinking {
+            animation: eye-blink 0.2s ease-in-out;
         }
-        .paper-word {
-            display: flex;
-            justify-content: center;
-            gap: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 1.6em;
-            letter-spacing: 3px;
-            min-height: 30px;
+        @keyframes eye-blink {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.05); }
         }
-        .paper-letter {
-            color: #1a1a17;
-            text-shadow: none;
-            transition: color 1.5s ease, text-shadow 1.5s ease;
-            font-weight: bold;
+        /* Закрытие при гейм-овере */
+        .eye-shape.closing {
+            animation: eye-close 2s forwards;
+        }
+        @keyframes eye-close {
+            to { transform: scaleY(0); }
+        }
+        .eye-label {
+            font-size: 0.55em;
+            color: #555;
+            line-height: 1.2;
+            transition: color 0.5s;
+        }
+        .eye-label.warn { color: #aa5555; }
+        .eye-label.danger { color: #ff3333; }
+
+        /* Блокнот */
+        .notebook {
+            background: #131311;
+            border: 1px solid #222;
+            padding: 8px;
+            font-size: 0.6em;
+            line-height: 1.6;
             position: relative;
+            max-height: 110px;
+            overflow: hidden;
         }
-        .paper-letter.revealed {
-            color: #8b7355;
-            text-shadow: 0 0 2px rgba(139, 115, 85, 0.3);
+        .notebook::before {
+            content: '';
+            position: absolute;
+            left: 22px; top: 0; bottom: 0;
+            width: 1px;
+            background: rgba(255, 50, 50, 0.1);
         }
-        .paper-letter.just-revealed {
-            animation: letter-reveal 1.5s ease-out;
+        .nb-line {
+            padding-left: 18px;
+            color: #555;
+            transition: color 0.8s, opacity 0.8s;
+            position: relative;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        @keyframes letter-reveal {
-            0% { color: #1a1a17; text-shadow: none; transform: scale(1); }
-            30% { color: #ff4d4d; text-shadow: 0 0 15px rgba(255, 77, 77, 0.6); transform: scale(1.3); }
-            60% { color: #cc8855; text-shadow: 0 0 8px rgba(200, 136, 85, 0.4); transform: scale(1.1); }
-            100% { color: #8b7355; text-shadow: 0 0 2px rgba(139, 115, 85, 0.3); transform: scale(1); }
+        .nb-line.crossed {
+            text-decoration: line-through;
+            color: #333;
+            text-decoration-color: #ff333380;
         }
-        .paper-scratch {
-            font-size: 0.45em;
-            color: #2a2a22;
-            margin-top: 6px;
+        .nb-line.crossed::after {
+            content: attr(data-override);
+            position: absolute;
+            right: 0;
+            text-decoration: none;
+            color: #ff4d4d;
             font-style: italic;
-            text-align: center;
-            min-height: 14px;
+            font-size: 0.9em;
         }
+        .nb-line.fading { opacity: 0.2; color: #2a2a2a; }
+        .nb-line.active { color: #888; }
+        .nb-line.breaking {
+            color: #ff4d4d;
+            animation: nb-flicker 0.5s infinite;
+        }
+        @keyframes nb-flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .nb-line .nb-marker {
+            position: absolute;
+            left: 4px;
+            color: #444;
+        }
+        .nb-line.crossed .nb-marker { color: #ff333380; }
+        .nb-line.active .nb-marker { color: #4dff88; }
 
         /* Текст расползается при критическом состоянии */
         .text-decay-1 { letter-spacing: 0.5px; }
@@ -558,18 +617,23 @@
             СТАТУС: Наблюдение...
         </div>
 
-        <!-- Бумажка с проявляющимся словом -->
-        <div class="paper-note" id="paper-note">
-            <div class="paper-label">из камеры объекта</div>
-            <div class="paper-word" id="paper-word">
-                <span class="paper-letter" data-idx="0">И</span>
-                <span class="paper-letter" data-idx="1">З</span>
-                <span class="paper-letter" data-idx="2">В</span>
-                <span class="paper-letter" data-idx="3">И</span>
-                <span class="paper-letter" data-idx="4">Н</span>
-                <span class="paper-letter" data-idx="5">И</span>
+        <!-- Блокнот психолога + Глаз -->
+        <div class="psych-panel">
+            <div class="eye-monitor" id="eye-monitor">
+                <div class="eye-container">
+                    <div class="eye-shape" id="eye-shape">
+                        <div class="eye-pupil" id="eye-pupil"></div>
+                    </div>
+                </div>
+                <div class="eye-label" id="eye-label">объективность<br>сохранена</div>
             </div>
-            <div class="paper-scratch" id="paper-scratch">неразборчиво...</div>
+            <div class="notebook" id="notebook">
+                <div class="nb-line active" data-idx="0" data-override=""><span class="nb-marker">▸</span>Сохранять дистанцию</div>
+                <div class="nb-line active" data-idx="1" data-override=""><span class="nb-marker">▸</span>Не раскрывать личное</div>
+                <div class="nb-line active" data-idx="2" data-override=""><span class="nb-marker">▸</span>Контролировать сессию</div>
+                <div class="nb-line active" data-idx="3" data-override=""><span class="nb-marker">▸</span>Не вступать в контакт</div>
+                <div class="nb-line active" data-idx="4" data-override=""><span class="nb-marker">▸</span>Помнить: ты — врач</div>
+            </div>
         </div>
     </div>
 
@@ -1077,53 +1141,115 @@
 
         applyGlitchEffects();
         triggerStatChangeEffects();
-        updatePaperNote();
+        updatePsychPanel();
     }
 
     // ==========================================
-    // БУМАЖКА — ПРОЯВЛЕНИЕ СЛОВА
+    // БЛОКНОТ ПСИХОЛОГА + ГЛАЗ
     // ==========================================
-    // Буквы проявляются на определённых порогах bond
-    const letterThresholds = [25, 35, 50, 60, 72, 85];
-    let revealedCount = 0;
 
-    const scratchTexts = [
-        "неразборчиво...",
-        "...что-то проступает",
-        "...буквы? слово?",
-        "...почти видно",
-        "...ещё немного",
-        "одно слово...",
-        ""
+    // Правила блокнота — каждое ломается при своём пороге
+    // [control_max, bond_min] — если control ≤ max ИЛИ bond ≥ min
+    const notebookRules = [
+        { idx: 0, breakIf: { control_max: 60, bond_min: 40 }, override: "он ближе" },
+        { idx: 1, breakIf: { control_max: 50, bond_min: 50 }, override: "он знает" },
+        { idx: 2, breakIf: { control_max: 40, bond_min: 60 }, override: "кто ведёт?" },
+        { idx: 3, breakIf: { control_max: 30, bond_min: 72 }, override: "поздно" },
+        { idx: 4, breakIf: { control_max: 20, bond_min: 85 }, override: "кто ты?" },
     ];
 
-    function updatePaperNote() {
-        const letters = document.querySelectorAll('.paper-letter');
-        const scratch = document.getElementById('paper-scratch');
-        let newCount = 0;
+    const eyeStates = [
+        { label: "объективность\nсохранена", cls: "", labelCls: "" },
+        { label: "фокус\nсмещается", cls: "dilate-1", labelCls: "" },
+        { label: "граница\nразмывается", cls: "dilate-2", labelCls: "warn" },
+        { label: "ты\nнаблюдаемая", cls: "dilate-3", labelCls: "danger" },
+        { label: "ты\nвнутри", cls: "dilate-4", labelCls: "danger" },
+    ];
 
-        for (let i = 0; i < letterThresholds.length; i++) {
-            if (bond >= letterThresholds[i]) newCount = i + 1;
+    let prevNotebookState = [false, false, false, false, false];
+    let eyeBlinkInterval;
+
+    function startEyeBlink() {
+        // Моргание с рандомным интервалом
+        function doBlink() {
+            const level = getGlitchLevel();
+            const shape = document.getElementById('eye-shape');
+            if (shape && !shape.classList.contains('closing')) {
+                shape.classList.add('blinking');
+                setTimeout(() => shape.classList.remove('blinking'), 200);
+            }
+            // Чем выше уровень — тем чаще моргает
+            const nextBlink = level >= 3 ? (800 + Math.random() * 1500)
+                            : level >= 2 ? (2000 + Math.random() * 3000)
+                            : (3000 + Math.random() * 5000);
+            eyeBlinkInterval = setTimeout(doBlink, nextBlink);
+        }
+        eyeBlinkInterval = setTimeout(doBlink, 2000 + Math.random() * 3000);
+    }
+
+    function updatePsychPanel() {
+        const level = getGlitchLevel();
+
+        // === ГЛАЗ ===
+        const pupil = document.getElementById('eye-pupil');
+        const eyeLabel = document.getElementById('eye-label');
+        const eyeShape = document.getElementById('eye-shape');
+
+        if (pupil) {
+            pupil.classList.remove('dilate-1', 'dilate-2', 'dilate-3', 'dilate-4');
+            const state = eyeStates[Math.min(level, eyeStates.length - 1)];
+            if (state.cls) pupil.classList.add(state.cls);
+        }
+        if (eyeLabel) {
+            eyeLabel.classList.remove('warn', 'danger');
+            const state = eyeStates[Math.min(level, eyeStates.length - 1)];
+            eyeLabel.textContent = state.label;
+            if (state.labelCls) eyeLabel.classList.add(state.labelCls);
+        }
+        if (eyeShape) {
+            eyeShape.style.borderColor = level >= 3 ? '#ff3333' : level >= 2 ? '#aa5555' : '#555';
         }
 
-        // Проявляем новые буквы
-        if (newCount > revealedCount) {
-            for (let i = revealedCount; i < newCount; i++) {
-                const letter = letters[i];
-                if (letter && !letter.classList.contains('revealed')) {
-                    letter.classList.add('revealed', 'just-revealed');
-                    // Помеха при проявлении буквы
-                    triggerScreenFlash(true);
-                    triggerGlitchBar();
-                    triggerVGlitch();
-                    // Убираем just-revealed после анимации
-                    setTimeout(() => letter.classList.remove('just-revealed'), 1500);
+        // === БЛОКНОТ ===
+        const lines = document.querySelectorAll('.nb-line');
+        notebookRules.forEach((rule, i) => {
+            const line = lines[rule.idx];
+            if (!line) return;
+
+            const isBroken = control <= rule.breakIf.control_max || bond >= rule.breakIf.bond_min;
+
+            if (isBroken && !prevNotebookState[i]) {
+                // Только что сломалось!
+                prevNotebookState[i] = true;
+                line.classList.remove('active');
+                line.classList.add('breaking');
+                line.setAttribute('data-override', rule.override);
+
+                // Помехи при ломании правила
+                triggerScreenFlash(true);
+                triggerGlitchBar();
+
+                // Через секунду — зачёркиваем
+                setTimeout(() => {
+                    line.classList.remove('breaking');
+                    line.classList.add('crossed');
+                }, 1200);
+            } else if (isBroken && prevNotebookState[i]) {
+                // Уже сломано — оставляем crossed
+                if (!line.classList.contains('crossed') && !line.classList.contains('breaking')) {
+                    line.classList.add('crossed');
+                    line.setAttribute('data-override', rule.override);
                 }
             }
-        }
+        });
 
-        revealedCount = newCount;
-        if (scratch) scratch.textContent = scratchTexts[Math.min(newCount, scratchTexts.length - 1)];
+        // Последнее несломанное правило — мигает при level >= 3
+        const lastActive = Array.from(lines).filter(l => l.classList.contains('active'));
+        lastActive.forEach(l => l.classList.remove('breaking'));
+        if (level >= 3 && lastActive.length > 0) {
+            lastActive[lastActive.length - 1].classList.add('breaking');
+            lastActive[lastActive.length - 1].classList.remove('active');
+        }
     }
 
     // ==========================================
@@ -1683,6 +1809,7 @@
     async function startGame() {
         updateBars();
         setupPhotoClick();
+        startEyeBlink();
 
         // Вступительный текст
         const intro = scenarios.intro;
