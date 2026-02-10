@@ -111,12 +111,12 @@
         .progress-bond { background: var(--bond-color); }
         .label { font-size: 0.8em; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* === БЛОКНОТ ПСИХОЛОГА + ГЛАЗ === */
+        /* === ЗАМЕТКИ + ГЛАЗ === */
         .psych-panel {
-            margin-top: 6px;
+            margin-top: auto;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 0;
             flex-shrink: 0;
         }
 
@@ -125,24 +125,26 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 4px 0;
+            padding: 6px 0 8px 0;
+            border-top: 1px solid #222;
         }
         .eye-container {
-            width: 44px; height: 24px;
+            width: 52px; height: 28px;
             position: relative;
             flex-shrink: 0;
         }
         .eye-shape {
             width: 100%; height: 100%;
-            border: 1.5px solid #555;
+            border: 2px solid #444;
             border-radius: 50%;
             position: relative;
             overflow: hidden;
             transition: border-color 0.5s;
+            background: radial-gradient(ellipse, rgba(30,30,30,0.4) 0%, transparent 70%);
         }
         .eye-pupil {
-            width: 9px; height: 9px;
-            background: #888;
+            width: 10px; height: 10px;
+            background: #777;
             border-radius: 50%;
             position: absolute;
             top: 50%; left: 50%;
@@ -150,77 +152,48 @@
             transition: width 0.8s, height 0.8s, background 0.8s, box-shadow 0.8s;
         }
         /* Уровни зрачка */
-        .eye-pupil.dilate-1 { width: 10px; height: 10px; background: #999; }
-        .eye-pupil.dilate-2 { width: 13px; height: 13px; background: #aa5555; box-shadow: 0 0 4px rgba(170,85,85,0.3); }
-        .eye-pupil.dilate-3 { width: 16px; height: 16px; background: #cc3333; box-shadow: 0 0 8px rgba(204,51,51,0.5); }
-        .eye-pupil.dilate-4 { width: 19px; height: 19px; background: #ff0000; box-shadow: 0 0 12px rgba(255,0,0,0.7); }
+        .eye-pupil.dilate-1 { width: 12px; height: 12px; background: #999; }
+        .eye-pupil.dilate-2 { width: 15px; height: 15px; background: #aa5555; box-shadow: 0 0 6px rgba(170,85,85,0.4); }
+        .eye-pupil.dilate-3 { width: 18px; height: 18px; background: #cc3333; box-shadow: 0 0 10px rgba(204,51,51,0.6); }
+        .eye-pupil.dilate-4 { width: 22px; height: 22px; background: #ff0000; box-shadow: 0 0 14px rgba(255,0,0,0.8); }
         /* Моргание */
-        .eye-shape.blinking {
-            animation: eye-blink 0.2s ease-in-out;
-        }
+        .eye-shape.blinking { animation: eye-blink 0.2s ease-in-out; }
         @keyframes eye-blink {
             0%, 100% { transform: scaleY(1); }
             50% { transform: scaleY(0.05); }
         }
         /* Закрытие при гейм-овере */
-        .eye-shape.closing {
-            animation: eye-close 2s forwards;
-        }
-        @keyframes eye-close {
-            to { transform: scaleY(0); }
-        }
+        .eye-shape.closing { animation: eye-close 2s forwards; }
+        @keyframes eye-close { to { transform: scaleY(0); } }
         .eye-label {
-            font-size: 0.65em;
+            font-size: 0.7em;
             color: #555;
             line-height: 1.2;
+            letter-spacing: 0.5px;
             transition: color 0.5s;
         }
         .eye-label.warn { color: #aa5555; }
-        .eye-label.danger { color: #ff3333; }
+        .eye-label.danger { color: #ff3333; text-shadow: 0 0 8px rgba(255,51,51,0.3); }
 
-        /* Блокнот — заметки */
+        /* Заметки — рукописный текст */
         .notebook {
-            background: #0f0f0d;
-            border: 1px solid #1a1a18;
-            border-left: 2px solid rgba(255, 50, 50, 0.08);
-            padding: 5px 6px 5px 8px;
-            font-size: 0.62em;
-            line-height: 1.5;
-            position: relative;
+            padding: 4px 2px 2px 2px;
+            font-size: 0.65em;
+            line-height: 1.45;
             font-style: italic;
-        }
-        .nb-line {
             color: #4a4a4a;
-            transition: color 0.8s, opacity 0.8s;
-            position: relative;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            padding: 0 2px;
+            transition: color 1.5s;
+            min-height: 32px;
         }
-        .nb-line.crossed {
-            text-decoration: line-through;
-            color: #2a2a2a;
-            text-decoration-color: #ff333360;
+        .notebook.note-warm { color: #7a5555; }
+        .notebook.note-hot { color: #aa4444; }
+        .notebook.note-critical { color: #ff4d4d; text-shadow: 0 0 6px rgba(255,77,77,0.2); }
+        .notebook .note-change {
+            animation: note-appear 0.8s ease-out;
         }
-        .nb-line.crossed::after {
-            content: attr(data-override);
-            position: absolute;
-            right: 2px;
-            text-decoration: none;
-            color: #ff4d4d;
-            font-style: italic;
-            font-size: 0.9em;
-        }
-        .nb-line.fading { opacity: 0.15; color: #222; }
-        .nb-line.active { color: #666; }
-        .nb-line.breaking {
-            color: #ff4d4d;
-            animation: nb-flicker 0.5s infinite;
-        }
-        @keyframes nb-flicker {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+        @keyframes note-appear {
+            0% { opacity: 0; transform: translateY(3px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
 
         /* Текст расползается при критическом состоянии */
@@ -604,7 +577,7 @@
             СТАТУС: Наблюдение...
         </div>
 
-        <!-- Блокнот психолога + Глаз -->
+        <!-- Заметки + Глаз -->
         <div class="psych-panel">
             <div class="eye-monitor" id="eye-monitor">
                 <div class="eye-container">
@@ -614,13 +587,7 @@
                 </div>
                 <div class="eye-label" id="eye-label">спокойствие</div>
             </div>
-            <div class="notebook" id="notebook">
-                <div class="nb-line active" data-idx="0" data-override="">держать дистанцию</div>
-                <div class="nb-line active" data-idx="1" data-override="">не рассказывать о себе</div>
-                <div class="nb-line active" data-idx="2" data-override="">я веду сессию</div>
-                <div class="nb-line active" data-idx="3" data-override="">не привязываться</div>
-                <div class="nb-line active" data-idx="4" data-override="">я — врач, он — пациент</div>
-            </div>
+            <div class="notebook" id="notebook">стандартный осмотр. он просто пациент.</div>
         </div>
     </div>
 
@@ -1135,15 +1102,19 @@
     // БЛОКНОТ ПСИХОЛОГА + ГЛАЗ
     // ==========================================
 
-    // Правила блокнота — каждое ломается при своём пороге
-    // [control_max, bond_min] — если control ≤ max ИЛИ bond ≥ min
-    const notebookRules = [
-        { idx: 0, breakIf: { control_max: 60, bond_min: 40 }, override: "уже нет" },
-        { idx: 1, breakIf: { control_max: 50, bond_min: 50 }, override: "он знает" },
-        { idx: 2, breakIf: { control_max: 40, bond_min: 60 }, override: "правда?" },
-        { idx: 3, breakIf: { control_max: 30, bond_min: 72 }, override: "поздно" },
-        { idx: 4, breakIf: { control_max: 20, bond_min: 85 }, override: "а кто я?" },
+    // Заметки — рукописный текст, меняется по ходу игры
+    const notebookNotes = [
+        { control_max: 999, bond_min: 0,  text: "стандартный осмотр. он просто пациент.", cls: "" },
+        { control_max: 60,  bond_min: 35, text: "он внимательный. слишком. записать наблюдения после.", cls: "" },
+        { control_max: 52,  bond_min: 45, text: "странное ощущение. будто он знает что я скажу.", cls: "note-warm" },
+        { control_max: 45,  bond_min: 55, text: "поймала себя на том что жду его ответа. это непрофессионально.", cls: "note-warm" },
+        { control_max: 38,  bond_min: 63, text: "он видит меня. не как врача. как человека. и мне это...", cls: "note-hot" },
+        { control_max: 30,  bond_min: 72, text: "не могу перестать думать. что он имел в виду?", cls: "note-hot" },
+        { control_max: 24,  bond_min: 80, text: "какой протокол. какая дистанция. я хочу понять его.", cls: "note-critical" },
+        { control_max: 18,  bond_min: 88, text: "он видит меня насквозь. он знает кто я.", cls: "note-critical" },
     ];
+
+    let currentNoteIdx = 0;
 
     const eyeStates = [
         { label: "спокойствие", cls: "", labelCls: "" },
@@ -1153,11 +1124,9 @@
         { label: "поглощение", cls: "dilate-4", labelCls: "danger" },
     ];
 
-    let prevNotebookState = [false, false, false, false, false];
     let eyeBlinkInterval;
 
     function startEyeBlink() {
-        // Моргание с рандомным интервалом
         function doBlink() {
             const level = getGlitchLevel();
             const shape = document.getElementById('eye-shape');
@@ -1165,7 +1134,6 @@
                 shape.classList.add('blinking');
                 setTimeout(() => shape.classList.remove('blinking'), 200);
             }
-            // Чем выше уровень — тем чаще моргает
             const nextBlink = level >= 3 ? (800 + Math.random() * 1500)
                             : level >= 2 ? (2000 + Math.random() * 3000)
                             : (3000 + Math.random() * 5000);
@@ -1194,48 +1162,40 @@
             if (state.labelCls) eyeLabel.classList.add(state.labelCls);
         }
         if (eyeShape) {
-            eyeShape.style.borderColor = level >= 3 ? '#ff3333' : level >= 2 ? '#aa5555' : '#555';
+            eyeShape.style.borderColor = level >= 3 ? '#ff3333' : level >= 2 ? '#aa5555' : '#444';
         }
 
-        // === БЛОКНОТ ===
-        const lines = document.querySelectorAll('.nb-line');
-        notebookRules.forEach((rule, i) => {
-            const line = lines[rule.idx];
-            if (!line) return;
+        // === ЗАМЕТКИ ===
+        const nb = document.getElementById('notebook');
+        if (!nb) return;
 
-            const isBroken = control <= rule.breakIf.control_max || bond >= rule.breakIf.bond_min;
-
-            if (isBroken && !prevNotebookState[i]) {
-                // Только что сломалось!
-                prevNotebookState[i] = true;
-                line.classList.remove('active');
-                line.classList.add('breaking');
-                line.setAttribute('data-override', rule.override);
-
-                // Помехи при ломании правила
-                triggerScreenFlash(true);
-                triggerGlitchBar();
-
-                // Через секунду — зачёркиваем
-                setTimeout(() => {
-                    line.classList.remove('breaking');
-                    line.classList.add('crossed');
-                }, 1200);
-            } else if (isBroken && prevNotebookState[i]) {
-                // Уже сломано — оставляем crossed
-                if (!line.classList.contains('crossed') && !line.classList.contains('breaking')) {
-                    line.classList.add('crossed');
-                    line.setAttribute('data-override', rule.override);
-                }
+        // Ищем самую «глубокую» подходящую заметку
+        let targetIdx = 0;
+        for (let i = notebookNotes.length - 1; i >= 0; i--) {
+            const note = notebookNotes[i];
+            if (control <= note.control_max || bond >= note.bond_min) {
+                targetIdx = i;
+                break;
             }
-        });
+        }
 
-        // Последнее несломанное правило — мигает при level >= 3
-        const lastActive = Array.from(lines).filter(l => l.classList.contains('active'));
-        lastActive.forEach(l => l.classList.remove('breaking'));
-        if (level >= 3 && lastActive.length > 0) {
-            lastActive[lastActive.length - 1].classList.add('breaking');
-            lastActive[lastActive.length - 1].classList.remove('active');
+        // Обновляем текст только если сменился
+        if (targetIdx !== currentNoteIdx) {
+            const note = notebookNotes[targetIdx];
+            currentNoteIdx = targetIdx;
+
+            // Убираем все классы
+            nb.classList.remove('note-warm', 'note-hot', 'note-critical');
+            if (note.cls) nb.classList.add(note.cls);
+
+            // Анимация смены текста
+            nb.innerHTML = `<span class="note-change">${note.text}</span>`;
+
+            // Эффекты при значительных изменениях
+            if (targetIdx >= 4) {
+                triggerScreenFlash(targetIdx >= 6);
+                triggerGlitchBar();
+            }
         }
     }
 
