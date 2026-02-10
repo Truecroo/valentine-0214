@@ -153,8 +153,12 @@
         /* Уровни зрачка */
         .eye-pupil.dilate-1 { width: 12px; height: 12px; background: #999; }
         .eye-pupil.dilate-2 { width: 15px; height: 15px; background: #aa5555; box-shadow: 0 0 6px rgba(170,85,85,0.4); }
-        .eye-pupil.dilate-3 { width: 18px; height: 18px; background: #cc3333; box-shadow: 0 0 10px rgba(204,51,51,0.6); }
-        .eye-pupil.dilate-4 { width: 22px; height: 22px; background: #ff0000; box-shadow: 0 0 14px rgba(255,0,0,0.8); }
+        .eye-pupil.dilate-3 { width: 18px; height: 18px; background: #cc3333; box-shadow: 0 0 10px rgba(204,51,51,0.6); animation: pupil-pulse 2s ease-in-out infinite; }
+        .eye-pupil.dilate-4 { width: 22px; height: 22px; background: #ff0000; box-shadow: 0 0 14px rgba(255,0,0,0.8); animation: pupil-pulse 1s ease-in-out infinite; }
+        @keyframes pupil-pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.15); }
+        }
         /* Моргание */
         .eye-shape.blinking { animation: eye-blink 0.2s ease-in-out; }
         @keyframes eye-blink {
@@ -172,7 +176,23 @@
             transition: color 0.5s;
         }
         .eye-label.warn { color: #aa5555; }
-        .eye-label.danger { color: #ff3333; text-shadow: 0 0 8px rgba(255,51,51,0.3); }
+        .eye-label.danger { color: #ff3333; text-shadow: 0 0 8px rgba(255,51,51,0.3); animation: label-flicker 2.5s ease-in-out infinite; }
+        @keyframes label-flicker {
+            0%, 100% { opacity: 1; }
+            40% { opacity: 0.7; }
+            50% { opacity: 1; }
+            60% { opacity: 0.6; }
+            70% { opacity: 1; }
+        }
+        .eye-shape.eye-danger {
+            animation: eye-border-flicker 3s ease-in-out infinite;
+        }
+        @keyframes eye-border-flicker {
+            0%, 100% { border-color: #ff3333; box-shadow: none; }
+            30% { border-color: #ff0000; box-shadow: 0 0 8px rgba(255,0,0,0.4); }
+            50% { border-color: #aa2222; box-shadow: none; }
+            70% { border-color: #ff1111; box-shadow: 0 0 6px rgba(255,0,0,0.3); }
+        }
 
         /* Заметки — рукописный текст */
         .notebook {
@@ -181,20 +201,69 @@
             line-height: 1.4;
             font-style: italic;
             color: #4a4a4a;
-            transition: color 1.5s;
+            transition: color 1.5s, letter-spacing 1.5s;
             min-height: 20px;
             border-bottom: 1px solid #222;
             margin-bottom: 2px;
+            position: relative;
+            overflow: hidden;
         }
-        .notebook.note-warm { color: #7a5555; }
-        .notebook.note-hot { color: #aa4444; }
-        .notebook.note-critical { color: #ff4d4d; text-shadow: 0 0 6px rgba(255,77,77,0.2); }
+        .notebook.note-warm {
+            color: #7a5555;
+            letter-spacing: 0.3px;
+        }
+        .notebook.note-hot {
+            color: #aa4444;
+            letter-spacing: 0.8px;
+            animation: note-tremble 4s ease-in-out infinite;
+        }
+        .notebook.note-critical {
+            color: #ff4d4d;
+            text-shadow: 0 0 6px rgba(255,77,77,0.3);
+            letter-spacing: 1.2px;
+            animation: note-madness 1.5s ease-in-out infinite;
+        }
+        .notebook.note-critical::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,0,0,0.03) 50%, transparent 100%);
+            animation: note-scan 2s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes note-tremble {
+            0%, 100% { transform: translateX(0); }
+            10% { transform: translateX(-0.5px); }
+            20% { transform: translateX(0.5px); }
+            30% { transform: translateX(0); }
+        }
+        @keyframes note-madness {
+            0%, 100% { transform: translateX(0) skewX(0deg); opacity: 1; }
+            15% { transform: translateX(-1px) skewX(-0.3deg); }
+            30% { transform: translateX(0.5px) skewX(0.2deg); opacity: 0.85; }
+            50% { transform: translateX(-0.5px) skewX(0deg); }
+            70% { transform: translateX(1px) skewX(-0.2deg); opacity: 0.9; }
+            85% { transform: translateX(-0.3px) skewX(0.3deg); }
+        }
+        @keyframes note-scan {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(100%); }
+        }
         .notebook .note-change {
             animation: note-appear 0.8s ease-out;
+            display: block;
         }
         @keyframes note-appear {
             0% { opacity: 0; transform: translateY(3px); }
             100% { opacity: 1; transform: translateY(0); }
+        }
+        /* Слова разъезжаются на критическом уровне */
+        .notebook.note-critical .note-change {
+            animation: note-appear 0.8s ease-out, note-breathe 3s ease-in-out 0.8s infinite;
+        }
+        @keyframes note-breathe {
+            0%, 100% { letter-spacing: 1.2px; word-spacing: 0; }
+            50% { letter-spacing: 2px; word-spacing: 3px; }
         }
 
         /* Текст расползается при критическом состоянии */
@@ -1163,7 +1232,12 @@
             if (state.labelCls) eyeLabel.classList.add(state.labelCls);
         }
         if (eyeShape) {
-            eyeShape.style.borderColor = level >= 3 ? '#ff3333' : level >= 2 ? '#aa5555' : '#444';
+            eyeShape.classList.remove('eye-danger');
+            if (level >= 3) {
+                eyeShape.classList.add('eye-danger');
+            } else {
+                eyeShape.style.borderColor = level >= 2 ? '#aa5555' : '#444';
+            }
         }
 
         // === ЗАМЕТКИ ===
