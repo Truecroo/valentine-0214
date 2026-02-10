@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Входящий звонок</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background: #000;
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+            height: 100dvh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Блокировка для десктопа */
+        #desktop-block {
+            display: none;
+            position: fixed; inset: 0;
+            background: #0a0a0a;
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier New', monospace;
+            color: #444;
+            padding: 40px;
+            text-align: center;
+        }
+        #desktop-block .icon { font-size: 3em; margin-bottom: 20px; opacity: 0.4; }
+        #desktop-block .title { font-size: 1.2em; color: #666; margin-bottom: 10px; letter-spacing: 2px; }
+        #desktop-block .sub { font-size: 0.8em; line-height: 1.6; }
+
+        /* === ЭКРАН ЗВОНКА === */
+        #call-screen {
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 60px 20px 50px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #0d0d1a 50%, #000 100%);
+            position: relative;
+        }
+
+        .caller-info {
+            text-align: center;
+            animation: fade-in 1s ease;
+        }
+        .caller-label {
+            font-size: 0.75em;
+            color: #888;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .caller-name {
+            font-size: 1.6em;
+            font-weight: 300;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        .caller-title {
+            font-size: 0.8em;
+            color: #aaa;
+            font-weight: 300;
+        }
+        .caller-status {
+            font-size: 0.75em;
+            color: #4dff88;
+            margin-top: 12px;
+            animation: pulse-text 2s infinite;
+        }
+
+        @keyframes pulse-text {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Аватарка */
+        .avatar {
+            width: 90px; height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #333, #555);
+            margin: 30px auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2em;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        /* Кнопки ответа */
+        .call-actions {
+            display: flex;
+            gap: 60px;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .call-btn {
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .btn-decline {
+            background: #ff3b30;
+            transform: rotate(135deg);
+        }
+        .btn-accept {
+            background: #34c759;
+            animation: pulse-ring 2s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.5); }
+            70% { box-shadow: 0 0 0 15px rgba(52, 199, 89, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); }
+        }
+
+        .btn-label {
+            font-size: 0.7em;
+            color: #888;
+            margin-top: 8px;
+            text-align: center;
+        }
+        .call-btn-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Свайп подсказка */
+        .swipe-hint {
+            font-size: 0.7em;
+            color: #444;
+            animation: bounce-up 2s infinite;
+        }
+        @keyframes bounce-up {
+            0%, 100% { transform: translateY(0); opacity: 0.4; }
+            50% { transform: translateY(-5px); opacity: 0.8; }
+        }
+
+        /* === ЭКРАН РАЗГОВОРА === */
+        #talk-screen {
+            display: none;
+            height: 100dvh;
+            flex-direction: column;
+            align-items: center;
+            padding: 60px 20px 40px;
+            background: #0a0a0a;
+        }
+
+        .talk-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .talk-name {
+            font-size: 1.1em;
+            font-weight: 400;
+        }
+        .talk-timer {
+            font-size: 0.85em;
+            color: #4dff88;
+            margin-top: 6px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .talk-avatar {
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #333, #555);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        /* Субтитры */
+        #subtitles {
+            flex: 1;
+            width: 100%;
+            max-width: 340px;
+            overflow-y: auto;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .subtitle-line {
+            font-size: 0.9em;
+            line-height: 1.5;
+            color: #ccc;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: sub-appear 0.5s forwards;
+        }
+        @keyframes sub-appear {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .subtitle-line.emphasis {
+            color: #ff4d4d;
+            font-weight: 500;
+        }
+        .subtitle-line.quiet {
+            color: #666;
+            font-style: italic;
+            font-size: 0.8em;
+        }
+
+        /* Кнопка завершения */
+        .end-call-btn {
+            width: 65px; height: 65px;
+            border-radius: 50%;
+            background: #ff3b30;
+            border: none;
+            font-size: 1.6em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transform: rotate(135deg);
+            margin-top: 20px;
+        }
+        .end-label {
+            font-size: 0.7em;
+            color: #888;
+            margin-top: 8px;
+        }
+
+        /* === ЭКРАН С КОДОМ === */
+        #code-screen {
+            display: none;
+            height: 100dvh;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 30px;
+            background: #0a0a0a;
+            text-align: center;
+        }
+
+        .code-icon {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            opacity: 0.6;
+        }
+        .code-title {
+            font-size: 0.75em;
+            color: #666;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+        }
+        .code-digits {
+            font-family: 'Courier New', monospace;
+            font-size: 3em;
+            letter-spacing: 15px;
+            color: #ff4d4d;
+            margin-bottom: 15px;
+            animation: code-glow 2s infinite;
+        }
+        @keyframes code-glow {
+            0%, 100% { text-shadow: 0 0 10px rgba(255, 77, 77, 0.3); }
+            50% { text-shadow: 0 0 25px rgba(255, 77, 77, 0.6); }
+        }
+        .code-hint {
+            font-size: 0.8em;
+            color: #555;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+        .code-file-label {
+            font-size: 0.65em;
+            color: #333;
+            margin-top: 40px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+
+        /* === ЭКРАН ОТКЛОНЕНИЯ === */
+        #decline-screen {
+            display: none;
+            height: 100dvh;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: #0a0a0a;
+            text-align: center;
+        }
+        .decline-text {
+            font-size: 0.9em;
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+        .retry-btn {
+            background: transparent;
+            border: 1px solid #333;
+            color: #888;
+            padding: 12px 30px;
+            font-family: inherit;
+            font-size: 0.85em;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<!-- Блок для десктопа -->
+<div id="desktop-block">
+    <div class="icon">📱</div>
+    <div class="title">ДОСТУП ОГРАНИЧЕН</div>
+    <div class="sub">
+        Этот канал связи доступен<br>
+        только с мобильного устройства.<br><br>
+        <span style="color:#555">Протокол безопасности BLOCK-D</span>
+    </div>
+</div>
+
+<!-- Экран входящего звонка -->
+<div id="call-screen">
+    <div class="caller-info">
+        <div class="caller-label">Входящий вызов</div>
+        <div class="avatar">👤</div>
+        <div class="caller-name">Полковник Васильев А.Р.</div>
+        <div class="caller-title">Гл. психолог-криминалист, ГУ МВД</div>
+        <div class="caller-status">вызов...</div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; align-items:center; gap:15px;">
+        <div class="call-actions">
+            <div class="call-btn-wrap">
+                <button class="call-btn btn-decline" id="btn-decline" onclick="declineCall()">📞</button>
+                <div class="btn-label">Отклонить</div>
+            </div>
+            <div class="call-btn-wrap">
+                <button class="call-btn btn-accept" id="btn-accept" onclick="acceptCall()">📞</button>
+                <div class="btn-label">Принять</div>
+            </div>
+        </div>
+        <div class="swipe-hint">входящий защищённый вызов</div>
+    </div>
+</div>
+
+<!-- Экран разговора -->
+<div id="talk-screen">
+    <div class="talk-avatar">👤</div>
+    <div class="talk-header">
+        <div class="talk-name">Полковник Васильев А.Р.</div>
+        <div class="talk-timer" id="call-timer">00:00</div>
+    </div>
+    <div id="subtitles"></div>
+    <button class="end-call-btn" id="end-call-btn" onclick="endCall()" style="display:none">📞</button>
+    <div class="end-label" id="end-label" style="display:none">Завершить</div>
+</div>
+
+<!-- Экран с кодом -->
+<div id="code-screen">
+    <div class="code-icon">🔐</div>
+    <div class="code-title">Код доступа к терминалу</div>
+    <div class="code-digits">0214</div>
+    <div class="code-hint">
+        Введите этот код на рабочем<br>
+        терминале для доступа к материалам дела.<br><br>
+        <span style="color: #ff4d4d;">Не передавайте код третьим лицам.</span>
+    </div>
+    <div class="code-file-label">ДЕЛО #0214 | ГРИФ: СЕКРЕТНО</div>
+</div>
+
+<!-- Экран отклонения -->
+<div id="decline-screen">
+    <div class="decline-text">
+        Вызов отклонён.<br><br>
+        <span style="color: #ff4d4d;">Пропущенный вызов (1)</span><br>
+        Полковник Васильев А.Р.<br><br>
+        <span style="color: #444; font-size: 0.8em;">Субъект #0214 ожидает.</span>
+    </div>
+    <button class="retry-btn" onclick="location.reload()">Перезвонить</button>
+</div>
+
+<script>
+    // Проверка мобильного
+    function isMobile() {
+        return /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+            || (window.innerWidth <= 768 && 'ontouchstart' in window);
+    }
+
+    if (!isMobile()) {
+        document.getElementById('desktop-block').style.display = 'flex';
+        document.getElementById('call-screen').style.display = 'none';
+    }
+
+    // Вибрация при звонке
+    let vibrateInterval;
+    function startVibration() {
+        if ('vibrate' in navigator) {
+            // Паттерн: вибрация 800мс, пауза 400мс, вибрация 800мс, пауза 2с
+            const pattern = [800, 400, 800, 2000];
+            navigator.vibrate(pattern);
+            vibrateInterval = setInterval(() => {
+                navigator.vibrate(pattern);
+            }, 4000);
+        }
+    }
+
+    function stopVibration() {
+        if (vibrateInterval) clearInterval(vibrateInterval);
+        if ('vibrate' in navigator) navigator.vibrate(0);
+    }
+
+    // Запуск вибрации
+    startVibration();
+
+    // Таймер разговора
+    let timerSeconds = 0;
+    let timerInterval;
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timerSeconds++;
+            const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+            const s = String(timerSeconds % 60).padStart(2, '0');
+            document.getElementById('call-timer').textContent = `${m}:${s}`;
+        }, 1000);
+    }
+
+    // Диалоговые линии
+    const lines = [
+        { text: "(шум, голоса на фоне)", type: "quiet", delay: 800 },
+        { text: "Елизавета Антоновна?", type: "normal", delay: 1500 },
+        { text: "Полковник Васильев. Не буду тянуть — ситуация экстренная.", type: "normal", delay: 2500 },
+        { text: "Субъект #0214. Серийный. Тот самый.", type: "emphasis", delay: 2800 },
+        { text: "Четыре месяца молчания. Ни слова. Ни жеста. Троих наших отправил на больничный — одним взглядом, если верить рапортам.", type: "normal", delay: 4000 },
+        { text: "(пауза)", type: "quiet", delay: 1500 },
+        { text: "Сегодня утром он заговорил. Впервые.", type: "normal", delay: 2200 },
+        { text: "Сказал одну фразу:", type: "normal", delay: 1500 },
+        { text: "\"Мне нужен кто-то, кто не боится смотреть.\"", type: "emphasis", delay: 3000 },
+        { text: "Мы прогнали профиль — вышли на вас.", type: "normal", delay: 2000 },
+        { text: "Елизавета Антоновна, я не прошу. Я информирую.", type: "emphasis", delay: 2500 },
+        { text: "Ваше присутствие — сегодня. Блок D, четвёртый этаж.", type: "normal", delay: 2500 },
+        { text: "Код доступа к материалам дела скину после звонка. Введёте на рабочем терминале.", type: "normal", delay: 3000 },
+        { text: "(тише) Будьте осторожны. Он... наблюдательный.", type: "quiet", delay: 2500 },
+        { text: "Конец связи.", type: "emphasis", delay: 2000 },
+    ];
+
+    async function playDialog() {
+        const container = document.getElementById('subtitles');
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            await new Promise(r => setTimeout(r, line.delay));
+
+            const div = document.createElement('div');
+            div.className = `subtitle-line ${line.type === 'emphasis' ? 'emphasis' : ''} ${line.type === 'quiet' ? 'quiet' : ''}`;
+            div.textContent = line.text;
+            container.appendChild(div);
+            container.scrollTop = 999999;
+
+            // Вибрация на важных фразах
+            if (line.type === 'emphasis' && 'vibrate' in navigator) {
+                navigator.vibrate(100);
+            }
+        }
+
+        // Показать кнопку завершения
+        await new Promise(r => setTimeout(r, 1500));
+        document.getElementById('end-call-btn').style.display = 'flex';
+        document.getElementById('end-label').style.display = 'block';
+    }
+
+    function acceptCall() {
+        stopVibration();
+
+        // Короткая вибрация подтверждения
+        if ('vibrate' in navigator) navigator.vibrate(50);
+
+        document.getElementById('call-screen').style.display = 'none';
+        document.getElementById('talk-screen').style.display = 'flex';
+        startTimer();
+        playDialog();
+    }
+
+    function declineCall() {
+        stopVibration();
+        if ('vibrate' in navigator) navigator.vibrate([100, 50, 100]);
+
+        document.getElementById('call-screen').style.display = 'none';
+        document.getElementById('decline-screen').style.display = 'flex';
+    }
+
+    function endCall() {
+        if (timerInterval) clearInterval(timerInterval);
+        if ('vibrate' in navigator) navigator.vibrate([50, 30, 50]);
+
+        document.getElementById('talk-screen').style.display = 'none';
+        document.getElementById('code-screen').style.display = 'flex';
+    }
+</script>
+</body>
+</html>
