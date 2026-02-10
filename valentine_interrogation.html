@@ -14,6 +14,20 @@
             display: grid; grid-template-columns: 250px 1fr; gap: 20px;
             width: 900px; height: 620px; border: 1px solid #333;
             padding: 20px; background: #111; position: relative; overflow: hidden;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        /* Heartbeat-пульсация рамки */
+        #game-window.heartbeat-1 { animation: heartbeat 2s infinite; }
+        #game-window.heartbeat-2 { animation: heartbeat 1.4s infinite; }
+        #game-window.heartbeat-3 { animation: heartbeat 0.9s infinite; }
+        #game-window.heartbeat-4 { animation: heartbeat 0.6s infinite; }
+        @keyframes heartbeat {
+            0%, 100% { border-color: #333; box-shadow: none; }
+            15% { border-color: #ff0033; box-shadow: 0 0 15px rgba(255,0,51,0.3), inset 0 0 15px rgba(255,0,51,0.05); }
+            30% { border-color: #550011; box-shadow: none; }
+            45% { border-color: #ff0022; box-shadow: 0 0 10px rgba(255,0,34,0.2), inset 0 0 10px rgba(255,0,34,0.03); }
+            60% { border-color: #333; box-shadow: none; }
         }
 
         /* Scanlines overlay */
@@ -46,10 +60,50 @@
         #state-image {
             width: 200px; height: 200px; background: #222; border: 2px solid #444;
             margin-bottom: 15px; overflow: hidden; position: relative;
+            cursor: pointer;
         }
         #state-image img {
             width: 100%; height: 100%; object-fit: cover;
             transition: opacity 0.8s ease;
+            transform-origin: center center;
+        }
+        /* Фото «дышит» */
+        #state-image.breathe-1 img { animation: breathe 4s ease-in-out infinite; }
+        #state-image.breathe-2 img { animation: breathe 3s ease-in-out infinite; }
+        #state-image.breathe-3 img { animation: breathe 2s ease-in-out infinite; }
+        #state-image.breathe-4 img { animation: breathe 1.2s ease-in-out infinite; }
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+        }
+        /* Реакция на клик по фото */
+        #state-image.clicked img {
+            animation: photo-click-flash 0.3s ease-out;
+        }
+        @keyframes photo-click-flash {
+            0% { filter: brightness(1); }
+            30% { filter: brightness(1.5); }
+            100% { filter: brightness(1); }
+        }
+        /* Всплывающая фраза при клике */
+        .photo-whisper {
+            position: absolute; bottom: 8px; left: 8px; right: 8px;
+            background: rgba(0,0,0,0.85);
+            color: var(--main-color);
+            font-size: 0.65em;
+            padding: 6px 8px;
+            text-align: center;
+            line-height: 1.3;
+            z-index: 5;
+            animation: whisper-appear 0.3s ease-out, whisper-fade 0.5s 2.5s forwards;
+            pointer-events: none;
+        }
+        @keyframes whisper-appear {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes whisper-fade {
+            to { opacity: 0; }
         }
         .stat-bar { background: #222; height: 10px; width: 100%; margin: 6px 0; border-radius: 5px; overflow: hidden; }
         .progress { height: 100%; width: 0%; transition: 0.5s; border-radius: 5px; }
@@ -57,14 +111,17 @@
         .progress-bond { background: var(--bond-color); }
         .label { font-size: 0.8em; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Зона подсказок */
-        #clue-area {
-            margin-top: 10px; padding-top: 8px; border-top: 1px solid #222;
-            font-size: 0.65em; color: #555; max-height: 100px; overflow-y: auto;
+        /* Текст расползается при критическом состоянии */
+        .text-decay-1 { letter-spacing: 0.5px; }
+        .text-decay-2 { letter-spacing: 1.5px; word-spacing: 3px; }
+        .text-decay-3 { letter-spacing: 3px; word-spacing: 6px; }
+        .text-decay-4 {
+            letter-spacing: 5px; word-spacing: 10px;
+            animation: text-decay-pulse 1.5s infinite;
         }
-        #clue-area .clue-item {
-            margin-bottom: 6px; line-height: 1.3;
-            color: #666; font-style: italic;
+        @keyframes text-decay-pulse {
+            0%, 100% { letter-spacing: 5px; }
+            50% { letter-spacing: 7px; }
         }
 
         /* Чат */
@@ -435,7 +492,7 @@
             СТАТУС: Наблюдение...
         </div>
 
-        <div id="clue-area"></div>
+        <!-- Пустое место под статусом -->
     </div>
 
     <div id="chat-area">
@@ -461,7 +518,6 @@
     let bond = 20;
     let isAnimating = false;
     let nameUnlocked = false;
-    let collectedClues = [];
     let currentStage = '';
 
     // ==========================================
@@ -770,11 +826,13 @@
 
     function applyGlitchEffects() {
         const allGlitchClasses = ['glitch-light', 'glitch-text', 'glitch-heavy', 'glitch-critical', 'glitch-color'];
+        const decayClasses = ['text-decay-1', 'text-decay-2', 'text-decay-3', 'text-decay-4'];
 
         // Собираем ВСЕ сообщения от маньяка
         const allMsgs = document.querySelectorAll('.msg.object-speech, .msg.reaction-text');
         allMsgs.forEach(msg => {
             allGlitchClasses.forEach(c => msg.classList.remove(c));
+            decayClasses.forEach(c => msg.classList.remove(c));
         });
 
         const level = getGlitchLevel();
@@ -782,30 +840,40 @@
         // Обновляем шум на экране
         updateNoiseOverlay(level);
 
+        // Heartbeat на рамке
+        const gw = document.getElementById('game-window');
+        gw.classList.remove('heartbeat-1', 'heartbeat-2', 'heartbeat-3', 'heartbeat-4');
+        if (level >= 1) gw.classList.add('heartbeat-' + Math.min(level, 4));
+
+        // Дыхание фото
+        const si = document.getElementById('state-image');
+        si.classList.remove('breathe-1', 'breathe-2', 'breathe-3', 'breathe-4');
+        if (level >= 1) si.classList.add('breathe-' + Math.min(level, 4));
+
         if (level === 0) return;
 
         if (level >= 4) {
-            // КРИТИЧЕСКИЙ: все реплики распадаются + цвет
+            // КРИТИЧЕСКИЙ: всё распадается + цвет + текст расползается
             allMsgs.forEach(msg => {
-                msg.classList.add('glitch-critical', 'glitch-color');
+                msg.classList.add('glitch-critical', 'glitch-color', 'text-decay-4');
             });
         } else if (level >= 3) {
-            // СИЛЬНЫЙ: все реплики сильно трясутся + цвет на последних
+            // СИЛЬНЫЙ: тряска + цвет + расползание
             allMsgs.forEach(msg => {
-                msg.classList.add('glitch-heavy');
+                msg.classList.add('glitch-heavy', 'text-decay-3');
             });
             const last = allMsgs[allMsgs.length - 1];
             if (last) last.classList.add('glitch-color');
         } else if (level >= 2) {
-            // СРЕДНИЙ: все реплики трясутся
+            // СРЕДНИЙ: тряска + начало расползания
             allMsgs.forEach(msg => {
-                msg.classList.add('glitch-text');
+                msg.classList.add('glitch-text', 'text-decay-2');
             });
         } else if (level >= 1) {
-            // ЛЁГКИЙ: последние несколько реплик слегка дрожат
+            // ЛЁГКИЙ: дрожание + лёгкое расползание
             const recent = Array.from(allMsgs).slice(-3);
             recent.forEach(msg => {
-                msg.classList.add('glitch-light');
+                msg.classList.add('glitch-light', 'text-decay-1');
             });
         }
     }
@@ -1055,17 +1123,78 @@
     }
 
     // ==========================================
-    // ПОДСКАЗКИ
+    // КЛИК ПО ФОТО
     // ==========================================
-    function addClue(text) {
-        collectedClues.push(text);
-        const area = document.getElementById('clue-area');
-        const clueDiv = document.createElement('div');
-        clueDiv.className = 'clue-item';
-        clueDiv.textContent = `\u{1F4DC} #${collectedClues.length}: ${text}`;
-        clueDiv.style.opacity = '0';
-        area.appendChild(clueDiv);
-        setTimeout(() => { clueDiv.style.opacity = '1'; clueDiv.style.transition = 'opacity 1s'; }, 100);
+    const photoWhispers = [
+        { text: "Ты трогаешь стекло? Интересно...", bond: 3, control: -2 },
+        { text: "Ближе. Ещё ближе. Так лучше.", bond: 5, control: -3 },
+        { text: "Твои пальцы. Я чувствую через камеру.", bond: 4, control: -2 },
+        { text: "Любопытство — первый шаг к одержимости.", bond: 3, control: -1 },
+        { text: "Ты не можешь перестать смотреть, да?", bond: 5, control: -3 },
+        { text: "Каждое касание — признание.", bond: 4, control: -2 },
+        { text: "Осторожно. Стекло тоньше, чем кажется.", bond: 6, control: -4 },
+        { text: "Ты думаешь, это ты выбираешь смотреть?", bond: 3, control: -2 },
+        { text: "Ещё раз. Мне нравится, когда ты...", bond: 7, control: -5 },
+        { text: "Мы оба знаем, зачем ты это делаешь.", bond: 5, control: -3 },
+        { text: "(улыбается)", bond: 4, control: -2 },
+        { text: "Не останавливайся.", bond: 8, control: -5 },
+        { text: "Сто двадцать четыре. Новая трещина. Из-за тебя.", bond: 5, control: -3 },
+        { text: "Я запоминаю каждое прикосновение.", bond: 6, control: -4 },
+        { text: "Ты уже по ту сторону. Просто ещё не знаешь.", bond: 7, control: -5 },
+    ];
+    let photoClickCount = 0;
+    let lastWhisperTimeout = null;
+
+    function setupPhotoClick() {
+        const stateImage = document.getElementById('state-image');
+        stateImage.addEventListener('click', () => {
+            if (isAnimating) return;
+
+            // Выбираем фразу
+            const whisper = photoWhispers[photoClickCount % photoWhispers.length];
+            photoClickCount++;
+
+            // Применяем статы
+            bond += whisper.bond;
+            control += whisper.control;
+            control = Math.max(0, Math.min(100, control));
+            bond = Math.max(0, Math.min(100, bond));
+            updateBars();
+
+            // Вспышка на фото
+            stateImage.classList.remove('clicked');
+            void stateImage.offsetWidth;
+            stateImage.classList.add('clicked');
+            setTimeout(() => stateImage.classList.remove('clicked'), 300);
+
+            // Убираем предыдущий шёпот
+            const oldWhisper = stateImage.querySelector('.photo-whisper');
+            if (oldWhisper) oldWhisper.remove();
+            if (lastWhisperTimeout) clearTimeout(lastWhisperTimeout);
+
+            // Показываем фразу
+            const whisperDiv = document.createElement('div');
+            whisperDiv.className = 'photo-whisper';
+            whisperDiv.textContent = whisper.text;
+            stateImage.appendChild(whisperDiv);
+
+            lastWhisperTimeout = setTimeout(() => {
+                if (whisperDiv.parentNode) whisperDiv.remove();
+            }, 3000);
+
+            // Помехи
+            triggerScreenFlash(whisper.bond >= 6);
+            triggerGlitchBar();
+            if (whisper.bond >= 5) setTimeout(triggerVGlitch, 150);
+
+            // Проверка гейм-овера
+            const gameOver = checkGameOver();
+            if (gameOver) {
+                setTimeout(async () => {
+                    await showGameOver(gameOver);
+                }, 500);
+            }
+        });
     }
 
     // ==========================================
@@ -1132,10 +1261,7 @@
 
                 updateBars();
 
-                // Подсказка
-                if (opt.clue && opt.clue_text) {
-                    setTimeout(() => addClue(opt.clue_text), 500);
-                }
+                // (подсказки убраны — визуальные эффекты вместо них)
 
                 // Проверка гейм-овера
                 const gameOver = checkGameOver();
@@ -1431,6 +1557,7 @@
     // ==========================================
     async function startGame() {
         updateBars();
+        setupPhotoClick();
 
         // Вступительный текст
         const intro = scenarios.intro;
