@@ -125,8 +125,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 6px 0 8px 0;
-            border-top: 1px solid #222;
+            padding: 5px 0 4px 0;
         }
         .eye-container {
             width: 52px; height: 28px;
@@ -177,13 +176,15 @@
 
         /* Заметки — рукописный текст */
         .notebook {
-            padding: 4px 2px 2px 2px;
-            font-size: 0.65em;
-            line-height: 1.45;
+            padding: 0 0 6px 0;
+            font-size: 0.78em;
+            line-height: 1.4;
             font-style: italic;
             color: #4a4a4a;
             transition: color 1.5s;
-            min-height: 32px;
+            min-height: 20px;
+            border-bottom: 1px solid #222;
+            margin-bottom: 2px;
         }
         .notebook.note-warm { color: #7a5555; }
         .notebook.note-hot { color: #aa4444; }
@@ -579,6 +580,7 @@
 
         <!-- Заметки + Глаз -->
         <div class="psych-panel">
+            <div class="notebook" id="notebook">стандартный осмотр. он просто пациент.</div>
             <div class="eye-monitor" id="eye-monitor">
                 <div class="eye-container">
                     <div class="eye-shape" id="eye-shape">
@@ -587,7 +589,6 @@
                 </div>
                 <div class="eye-label" id="eye-label">спокойствие</div>
             </div>
-            <div class="notebook" id="notebook">стандартный осмотр. он просто пациент.</div>
         </div>
     </div>
 
