@@ -10,14 +10,14 @@
         body {
             background: #000;
             color: white;
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
             height: 100dvh;
             overflow: hidden;
             user-select: none;
             -webkit-user-select: none;
         }
 
-        /* Блокировка десктопа */
+        /* Блокировка для десктопа */
         #desktop-block {
             display: none;
             position: fixed; inset: 0;
@@ -35,169 +35,158 @@
         #desktop-block .title { font-size: 1.2em; color: #666; margin-bottom: 10px; letter-spacing: 2px; }
         #desktop-block .sub { font-size: 0.8em; line-height: 1.6; }
 
-        /* ==========================================
-           ЭКРАН ЗВОНКА — стиль iOS
-           ========================================== */
+        /* === ЭКРАН ЗВОНКА === */
         #call-screen {
             height: 100dvh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: env(safe-area-inset-top, 50px) 20px env(safe-area-inset-bottom, 30px);
-            padding-top: max(env(safe-area-inset-top, 50px), 50px);
-            padding-bottom: max(env(safe-area-inset-bottom, 30px), 30px);
-            background: linear-gradient(180deg, #1c1c1e 0%, #000 100%);
+            padding: 60px 20px 50px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #0d0d1a 50%, #000 100%);
             position: relative;
         }
 
-        /* Верхняя часть: имя + аватар */
-        .caller-top {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 20px;
+        .caller-info {
+            text-align: center;
+            animation: fade-in 1s ease;
         }
-
-        .caller-name {
-            font-size: 2em;
-            font-weight: 300;
-            letter-spacing: -0.5px;
-            margin-bottom: 6px;
-        }
-        .caller-subtitle {
-            font-size: 0.9em;
-            color: rgba(255,255,255,0.6);
-            font-weight: 400;
-            margin-bottom: 6px;
-        }
-
-        /* Аватар — как iOS серый кружок с инициалами */
-        .avatar-ios {
-            width: 100px; height: 100px;
-            border-radius: 50%;
-            background: linear-gradient(180deg, #636366, #48484a);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.4em;
-            font-weight: 300;
-            color: white;
-            margin-bottom: 16px;
-        }
-
-        /* Средняя секция — 4 кнопки в ряд (как iOS) */
-        .middle-actions {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px 30px;
-            width: 280px;
-        }
-        .mid-btn-wrap {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-        }
-        .mid-btn {
-            width: 60px; height: 60px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.1);
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.4em;
-        }
-        .mid-btn-label {
-            font-size: 0.65em;
-            color: rgba(255,255,255,0.6);
-        }
-
-        /* Нижняя часть — кнопки принять/отклонить */
-        .bottom-actions {
-            display: flex;
-            justify-content: center;
-            gap: 80px;
-            align-items: center;
-            padding-bottom: 10px;
-        }
-        .bottom-btn-wrap {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-        .call-btn-ios {
-            width: 68px; height: 68px;
-            border-radius: 50%;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-        .btn-decline-ios {
-            background: #ff3b30;
-        }
-        .btn-accept-ios {
-            background: #34c759;
-        }
-        .call-btn-label {
+        .caller-label {
             font-size: 0.75em;
-            color: rgba(255,255,255,0.6);
+            color: #888;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .caller-name {
+            font-size: 1.6em;
+            font-weight: 300;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        .caller-title {
+            font-size: 0.8em;
+            color: #aaa;
+            font-weight: 300;
+        }
+        .caller-status {
+            font-size: 0.75em;
+            color: #4dff88;
+            margin-top: 12px;
+            animation: pulse-text 2s infinite;
         }
 
-        /* SVG иконки телефона */
-        .phone-icon {
-            width: 28px; height: 28px;
-            fill: white;
+        @keyframes pulse-text {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
         }
-        .phone-icon-decline {
+
+        /* Аватарка */
+        .avatar {
+            width: 90px; height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #333, #555);
+            margin: 30px auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2em;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        /* Кнопки ответа */
+        .call-actions {
+            display: flex;
+            gap: 60px;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .call-btn {
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .btn-decline {
+            background: #ff3b30;
             transform: rotate(135deg);
         }
+        .btn-accept {
+            background: #34c759;
+            animation: pulse-ring 2s infinite;
+        }
 
-        /* ==========================================
-           ЭКРАН РАЗГОВОРА
-           ========================================== */
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.5); }
+            70% { box-shadow: 0 0 0 15px rgba(52, 199, 89, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); }
+        }
+
+        .btn-label {
+            font-size: 0.7em;
+            color: #888;
+            margin-top: 8px;
+            text-align: center;
+        }
+        .call-btn-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Свайп подсказка */
+        .swipe-hint {
+            font-size: 0.7em;
+            color: #444;
+            animation: bounce-up 2s infinite;
+        }
+        @keyframes bounce-up {
+            0%, 100% { transform: translateY(0); opacity: 0.4; }
+            50% { transform: translateY(-5px); opacity: 0.8; }
+        }
+
+        /* === ЭКРАН РАЗГОВОРА === */
         #talk-screen {
             display: none;
             height: 100dvh;
             flex-direction: column;
             align-items: center;
-            padding: env(safe-area-inset-top, 50px) 20px 40px;
-            padding-top: max(env(safe-area-inset-top, 50px), 50px);
-            background: #1c1c1e;
+            padding: 60px 20px 40px;
+            background: #0a0a0a;
         }
 
-        .talk-top {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 20px;
-            margin-bottom: 10px;
+        .talk-header {
+            text-align: center;
+            margin-bottom: 40px;
         }
         .talk-name {
             font-size: 1.1em;
-            font-weight: 500;
+            font-weight: 400;
         }
         .talk-timer {
             font-size: 0.85em;
-            color: #34c759;
-            margin-top: 4px;
+            color: #4dff88;
+            margin-top: 6px;
             font-variant-numeric: tabular-nums;
         }
-        .talk-avatar-small {
-            width: 60px; height: 60px;
+
+        .talk-avatar {
+            width: 70px; height: 70px;
             border-radius: 50%;
-            background: linear-gradient(180deg, #636366, #48484a);
+            background: linear-gradient(135deg, #333, #555);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5em;
-            font-weight: 300;
-            margin-bottom: 12px;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255,255,255,0.1);
         }
 
         /* Субтитры */
@@ -209,57 +198,56 @@
             padding: 20px 0;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
             -webkit-overflow-scrolling: touch;
         }
         .subtitle-line {
-            font-size: 0.95em;
+            font-size: 0.9em;
             line-height: 1.5;
-            color: rgba(255,255,255,0.85);
+            color: #ccc;
             opacity: 0;
-            transform: translateY(8px);
-            animation: sub-in 0.4s ease forwards;
+            transform: translateY(10px);
+            animation: sub-appear 0.5s forwards;
         }
-        @keyframes sub-in {
+        @keyframes sub-appear {
             to { opacity: 1; transform: translateY(0); }
         }
         .subtitle-line.emphasis {
-            color: #ff453a;
+            color: #ff4d4d;
             font-weight: 500;
         }
         .subtitle-line.quiet {
-            color: rgba(255,255,255,0.35);
+            color: #666;
             font-style: italic;
-            font-size: 0.85em;
+            font-size: 0.8em;
         }
 
-        /* Кнопка завершения разговора */
+        /* Кнопка завершения */
         .end-call-area {
             display: none;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
-            padding-bottom: 10px;
+            gap: 8px;
         }
         .end-call-area.visible { display: flex; }
-        .end-call-btn-ios {
-            width: 68px; height: 68px;
+        .end-call-btn {
+            width: 65px; height: 65px;
             border-radius: 50%;
             background: #ff3b30;
             border: none;
+            font-size: 1.6em;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            transform: rotate(135deg);
         }
-        .end-call-label {
+        .end-label {
             font-size: 0.7em;
-            color: rgba(255,255,255,0.5);
+            color: #888;
         }
 
-        /* ==========================================
-           ЭКРАН С КОДОМ
-           ========================================== */
+        /* === ЭКРАН С КОДОМ === */
         #code-screen {
             display: none;
             height: 100dvh;
@@ -271,38 +259,45 @@
             text-align: center;
         }
 
-        .code-icon { font-size: 2.5em; margin-bottom: 20px; opacity: 0.6; }
+        .code-icon {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            opacity: 0.6;
+        }
         .code-title {
-            font-size: 0.75em; color: #666;
-            letter-spacing: 3px; text-transform: uppercase;
+            font-size: 0.75em;
+            color: #666;
+            letter-spacing: 3px;
+            text-transform: uppercase;
             margin-bottom: 30px;
         }
         .code-digits {
             font-family: 'Courier New', monospace;
             font-size: 3em;
             letter-spacing: 15px;
-            color: #ff453a;
+            color: #ff4d4d;
             margin-bottom: 15px;
             animation: code-glow 2s infinite;
         }
         @keyframes code-glow {
-            0%, 100% { text-shadow: 0 0 10px rgba(255, 69, 58, 0.3); }
-            50% { text-shadow: 0 0 25px rgba(255, 69, 58, 0.6); }
+            0%, 100% { text-shadow: 0 0 10px rgba(255, 77, 77, 0.3); }
+            50% { text-shadow: 0 0 25px rgba(255, 77, 77, 0.6); }
         }
         .code-hint {
-            font-size: 0.8em; color: #555;
-            line-height: 1.6; margin-top: 10px;
+            font-size: 0.8em;
+            color: #555;
+            line-height: 1.6;
+            margin-top: 10px;
         }
         .code-file-label {
-            font-size: 0.65em; color: #333;
+            font-size: 0.65em;
+            color: #333;
             margin-top: 40px;
             font-family: 'Courier New', monospace;
             letter-spacing: 1px;
         }
 
-        /* ==========================================
-           ЭКРАН ОТКЛОНЕНИЯ
-           ========================================== */
+        /* === ЭКРАН ОТКЛОНЕНИЯ === */
         #decline-screen {
             display: none;
             height: 100dvh;
@@ -314,8 +309,10 @@
             text-align: center;
         }
         .decline-text {
-            font-size: 0.9em; color: #666;
-            line-height: 1.8; margin-bottom: 30px;
+            font-size: 0.9em;
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 30px;
         }
         .retry-btn {
             background: transparent;
@@ -327,11 +324,13 @@
             border-radius: 8px;
             cursor: pointer;
         }
+
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-<!-- Десктоп-блок -->
+<!-- Блок для десктопа -->
 <div id="desktop-block">
     <div class="icon">📱</div>
     <div class="title">ДОСТУП ОГРАНИЧЕН</div>
@@ -342,68 +341,46 @@
     </div>
 </div>
 
-<!-- ===== ЭКРАН ЗВОНКА (iOS) ===== -->
+<!-- Экран входящего звонка -->
 <div id="call-screen">
-    <div class="caller-top">
-        <div class="avatar-ios">ВА</div>
-        <div class="caller-name">Васильев А.Р.</div>
-        <div class="caller-subtitle">сотовый</div>
+    <div class="caller-info">
+        <div class="caller-label">Входящий вызов</div>
+        <div class="avatar">👤</div>
+        <div class="caller-name">Полковник Васильев А.Р.</div>
+        <div class="caller-title">Гл. психолог-криминалист, ГУ МВД</div>
+        <div class="caller-status">вызов...</div>
     </div>
 
-    <!-- Средние кнопки — как iOS -->
-    <div class="middle-actions">
-        <div class="mid-btn-wrap">
-            <button class="mid-btn">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><path d="M18.8 22.5 7.15 7.16"/><rect x="6" y="2" width="12" height="20" rx="2" stroke="white"/></svg>
-            </button>
-            <span class="mid-btn-label">Напомнить</span>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:15px;">
+        <div class="call-actions">
+            <div class="call-btn-wrap">
+                <button class="call-btn btn-decline" id="btn-decline" onclick="declineCall()">📞</button>
+                <div class="btn-label">Отклонить</div>
+            </div>
+            <div class="call-btn-wrap">
+                <button class="call-btn btn-accept" id="btn-accept" onclick="acceptCall()">📞</button>
+                <div class="btn-label">Принять</div>
+            </div>
         </div>
-        <div class="mid-btn-wrap">
-            <button class="mid-btn">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            </button>
-            <span class="mid-btn-label">Сообщение</span>
-        </div>
-        <div class="mid-btn-wrap" style="visibility:hidden">
-            <button class="mid-btn"></button>
-            <span class="mid-btn-label"></span>
-        </div>
-    </div>
-
-    <!-- Нижние кнопки: отклонить / принять -->
-    <div class="bottom-actions">
-        <div class="bottom-btn-wrap">
-            <button class="call-btn-ios btn-decline-ios" onclick="declineCall()">
-                <svg class="phone-icon phone-icon-decline" viewBox="0 0 24 24"><path d="M6.62 10.79a15.053 15.053 0 0 0 6.59 6.59l2.2-2.2a1.003 1.003 0 0 1 1.01-.24c1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.1.31.03.66-.25 1.02l-2.2 2.2z"/></svg>
-            </button>
-            <span class="call-btn-label">Отклонить</span>
-        </div>
-        <div class="bottom-btn-wrap">
-            <button class="call-btn-ios btn-accept-ios" onclick="acceptCall()">
-                <svg class="phone-icon" viewBox="0 0 24 24"><path d="M6.62 10.79a15.053 15.053 0 0 0 6.59 6.59l2.2-2.2a1.003 1.003 0 0 1 1.01-.24c1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.1.31.03.66-.25 1.02l-2.2 2.2z"/></svg>
-            </button>
-            <span class="call-btn-label">Принять</span>
-        </div>
+        <div class="swipe-hint">входящий защищённый вызов</div>
     </div>
 </div>
 
-<!-- ===== ЭКРАН РАЗГОВОРА ===== -->
+<!-- Экран разговора -->
 <div id="talk-screen">
-    <div class="talk-top">
-        <div class="talk-avatar-small">ВА</div>
-        <div class="talk-name">Васильев А.Р.</div>
+    <div class="talk-avatar">👤</div>
+    <div class="talk-header">
+        <div class="talk-name">Полковник Васильев А.Р.</div>
         <div class="talk-timer" id="call-timer">00:00</div>
     </div>
     <div id="subtitles"></div>
     <div class="end-call-area" id="end-call-area">
-        <button class="end-call-btn-ios" onclick="endCall()">
-            <svg class="phone-icon phone-icon-decline" viewBox="0 0 24 24"><path d="M6.62 10.79a15.053 15.053 0 0 0 6.59 6.59l2.2-2.2a1.003 1.003 0 0 1 1.01-.24c1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.1.31.03.66-.25 1.02l-2.2 2.2z"/></svg>
-        </button>
-        <span class="end-call-label">Завершить</span>
+        <button class="end-call-btn" onclick="endCall()">📞</button>
+        <div class="end-label">Завершить</div>
     </div>
 </div>
 
-<!-- ===== ЭКРАН С КОДОМ ===== -->
+<!-- Экран с кодом -->
 <div id="code-screen">
     <div class="code-icon">🔐</div>
     <div class="code-title">Код доступа к терминалу</div>
@@ -411,29 +388,24 @@
     <div class="code-hint">
         Введите этот код на рабочем<br>
         терминале для доступа к материалам дела.<br><br>
-        <span style="color: #ff453a;">Не передавайте код третьим лицам.</span>
+        <span style="color: #ff4d4d;">Не передавайте код третьим лицам.</span>
     </div>
     <div class="code-file-label">ДЕЛО #0214 | ГРИФ: СЕКРЕТНО</div>
 </div>
 
-<!-- ===== ЭКРАН ОТКЛОНЕНИЯ ===== -->
+<!-- Экран отклонения -->
 <div id="decline-screen">
     <div class="decline-text">
         Вызов отклонён.<br><br>
-        <span style="color: #ff453a;">Пропущенный вызов (1)</span><br>
-        Васильев А.Р.<br><br>
+        <span style="color: #ff4d4d;">Пропущенный вызов (1)</span><br>
+        Полковник Васильев А.Р.<br><br>
         <span style="color: #444; font-size: 0.8em;">Субъект #0214 ожидает.</span>
     </div>
     <button class="retry-btn" onclick="location.reload()">Перезвонить</button>
 </div>
 
-<!-- Аудио для имитации вибрации (iOS не поддерживает Vibration API) -->
-<audio id="ringtone" loop preload="auto">
-    <!-- Тишина с суб-басовым гулом — тактильная отдача на iPhone через динамик -->
-</audio>
-
 <script>
-    // ========== Проверка мобильного ==========
+    // Проверка мобильного
     function isMobile() {
         return /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
             || (window.innerWidth <= 768 && 'ontouchstart' in window);
@@ -445,86 +417,30 @@
     }
 
     // ========== Вибрация ==========
-    // iOS Safari не поддерживает navigator.vibrate
-    // Решение: используем AudioContext для генерации суб-басового тона
-    // который создаёт тактильную отдачу через динамик/Taptic Engine
-
     let vibrateInterval;
-    let audioCtx;
-    let oscillator;
-    let gainNode;
-
-    function createVibrateAudio() {
-        try {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            oscillator = audioCtx.createOscillator();
-            gainNode = audioCtx.createGain();
-
-            oscillator.type = 'sine';
-            oscillator.frequency.value = 30; // суб-бас, ощутимый тактильно
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            gainNode.gain.value = 0;
-            oscillator.start();
-        } catch(e) {}
-    }
-
-    function pulseVibration() {
-        if (!gainNode) return;
-        const now = audioCtx.currentTime;
-        // Паттерн: вжж-вжж (как iPhone)
-        gainNode.gain.setValueAtTime(0.6, now);
-        gainNode.gain.setValueAtTime(0, now + 0.4);
-        gainNode.gain.setValueAtTime(0.6, now + 0.6);
-        gainNode.gain.setValueAtTime(0, now + 1.0);
-    }
 
     function startVibration() {
-        // Пробуем стандартный API (Android)
+        // Android — стандартный API
         if ('vibrate' in navigator) {
-            const pattern = [400, 200, 400, 1500];
+            const pattern = [800, 400, 800, 2000];
             navigator.vibrate(pattern);
             vibrateInterval = setInterval(() => {
                 navigator.vibrate(pattern);
-            }, 2500);
+            }, 4000);
         }
-
-        // Аудио-вибрация (iOS)
-        createVibrateAudio();
-        pulseVibration();
-        if (!vibrateInterval) {
-            vibrateInterval = setInterval(pulseVibration, 2500);
-        } else {
-            // Для Android — добавим аудио параллельно
-            setInterval(pulseVibration, 2500);
-        }
+        // iOS — vibrate не поддерживается, увы.
+        // Apple не дает веб-страницам вибрировать на iPhone.
     }
 
     function stopVibration() {
         if (vibrateInterval) { clearInterval(vibrateInterval); vibrateInterval = null; }
         if ('vibrate' in navigator) navigator.vibrate(0);
-        if (gainNode) gainNode.gain.value = 0;
-        if (oscillator) { try { oscillator.stop(); } catch(e) {} }
-        if (audioCtx) { try { audioCtx.close(); } catch(e) {} }
     }
 
-    // Вибрация нужен user gesture на iOS
-    // Запускаем при первом касании
-    let vibrationStarted = false;
-    document.addEventListener('touchstart', function initVibrate() {
-        if (!vibrationStarted) {
-            vibrationStarted = true;
-            startVibration();
-        }
-    }, { once: false });
+    // Запуск вибрации
+    startVibration();
 
-    // Для Android — запускаем сразу
-    if ('vibrate' in navigator) {
-        vibrationStarted = true;
-        startVibration();
-    }
-
-    // ========== Таймер ==========
+    // Таймер разговора
     let timerSeconds = 0;
     let timerInterval;
 
@@ -537,7 +453,7 @@
         }, 1000);
     }
 
-    // ========== Диалог ==========
+    // Диалоговые линии
     const lines = [
         { text: "(шум, голоса на фоне)", type: "quiet", delay: 800 },
         { text: "Елизавета Антоновна?", type: "normal", delay: 1500 },
@@ -564,14 +480,14 @@
             await new Promise(r => setTimeout(r, line.delay));
 
             const div = document.createElement('div');
-            div.className = `subtitle-line${line.type === 'emphasis' ? ' emphasis' : ''}${line.type === 'quiet' ? ' quiet' : ''}`;
+            div.className = `subtitle-line ${line.type === 'emphasis' ? 'emphasis' : ''} ${line.type === 'quiet' ? 'quiet' : ''}`;
             div.textContent = line.text;
             container.appendChild(div);
             container.scrollTop = 999999;
 
-            // Микро-вибрация на важных фразах (Android)
+            // Вибрация на важных фразах
             if (line.type === 'emphasis' && 'vibrate' in navigator) {
-                navigator.vibrate(80);
+                navigator.vibrate(100);
             }
         }
 
@@ -580,10 +496,9 @@
         document.getElementById('end-call-area').classList.add('visible');
     }
 
-    // ========== Действия ==========
     function acceptCall() {
         stopVibration();
-        if ('vibrate' in navigator) navigator.vibrate(30);
+        if ('vibrate' in navigator) navigator.vibrate(50);
 
         document.getElementById('call-screen').style.display = 'none';
         document.getElementById('talk-screen').style.display = 'flex';
@@ -593,7 +508,7 @@
 
     function declineCall() {
         stopVibration();
-        if ('vibrate' in navigator) navigator.vibrate([80, 40, 80]);
+        if ('vibrate' in navigator) navigator.vibrate([100, 50, 100]);
 
         document.getElementById('call-screen').style.display = 'none';
         document.getElementById('decline-screen').style.display = 'flex';
@@ -601,7 +516,7 @@
 
     function endCall() {
         if (timerInterval) clearInterval(timerInterval);
-        if ('vibrate' in navigator) navigator.vibrate([40, 20, 40]);
+        if ('vibrate' in navigator) navigator.vibrate([50, 30, 50]);
 
         document.getElementById('talk-screen').style.display = 'none';
         document.getElementById('code-screen').style.display = 'flex';
