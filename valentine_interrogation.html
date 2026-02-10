@@ -68,8 +68,8 @@
         }
 
         /* Чат */
-        #chat-area { display: flex; flex-direction: column; justify-content: space-between; }
-        #messages { flex: 1; overflow-y: auto; padding: 10px; border-bottom: 1px solid #333; margin-bottom: 10px; }
+        #chat-area { display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
+        #messages { flex: 1; overflow-y: auto; padding: 10px; border-bottom: 1px solid #333; margin-bottom: 10px; min-height: 0; }
         .msg { margin-bottom: 12px; line-height: 1.5; font-size: 0.9em; }
         .patient { color: var(--main-color); }
         .doctor { color: #4dff88; text-align: right; }
@@ -110,21 +110,67 @@
         button.warn-btn { border-color: #553300; }
         button.warn-btn:hover:not(:disabled) { border-color: #ffaa00; color: #ffcc44; }
 
-        /* Глитч-эффект */
-        .glitch-text { animation: glitch-shake 0.15s infinite; }
-        @keyframes glitch-shake {
+        /* Глитч-эффект — уровень 1: лёгкая тряска (bond >= 60) */
+        .glitch-light { animation: glitch-light 0.2s infinite; }
+        @keyframes glitch-light {
             0% { transform: translate(0); }
-            25% { transform: translate(-1px, 1px); }
-            50% { transform: translate(1px, -1px); }
-            75% { transform: translate(-1px, -1px); }
-            100% { transform: translate(1px, 1px); }
+            25% { transform: translate(-1px, 0.5px); }
+            50% { transform: translate(0.5px, -1px); }
+            75% { transform: translate(-0.5px, -0.5px); }
+            100% { transform: translate(1px, 0.5px); }
         }
-        .glitch-color { animation: glitch-color-shift 0.3s infinite; }
+
+        /* Глитч-эффект — уровень 2: заметная тряска (bond >= 75 или control <= 35) */
+        .glitch-text { animation: glitch-shake 0.1s infinite; }
+        @keyframes glitch-shake {
+            0% { transform: translate(0) skewX(0deg); }
+            20% { transform: translate(-3px, 2px) skewX(-1deg); }
+            40% { transform: translate(2px, -2px) skewX(1deg); }
+            60% { transform: translate(-2px, -1px) skewX(-0.5deg); }
+            80% { transform: translate(3px, 1px) skewX(0.5deg); }
+            100% { transform: translate(-1px, 2px) skewX(0deg); }
+        }
+
+        /* Глитч-эффект — уровень 3: сильная тряска + искажения (bond >= 85 или control <= 20) */
+        .glitch-heavy { animation: glitch-heavy 0.08s infinite; }
+        @keyframes glitch-heavy {
+            0% { transform: translate(0) skewX(0deg) scaleY(1); }
+            15% { transform: translate(-4px, 3px) skewX(-3deg) scaleY(1.02); }
+            30% { transform: translate(5px, -2px) skewX(2deg) scaleY(0.98); }
+            45% { transform: translate(-3px, -3px) skewX(-2deg) scaleY(1.01); }
+            60% { transform: translate(4px, 2px) skewX(4deg) scaleY(0.97); }
+            75% { transform: translate(-5px, 1px) skewX(-1deg) scaleY(1.03); }
+            100% { transform: translate(2px, -3px) skewX(1deg) scaleY(1); }
+        }
+
+        /* Цветовой сдвиг */
+        .glitch-color { animation: glitch-color-shift 0.15s infinite; }
         @keyframes glitch-color-shift {
-            0% { color: var(--main-color); }
-            33% { color: #ff00ff; }
-            66% { color: #00ffff; }
-            100% { color: var(--main-color); }
+            0% { color: var(--main-color); text-shadow: none; }
+            20% { color: #ff00ff; text-shadow: -2px 0 #00ffff; }
+            40% { color: #00ffff; text-shadow: 2px 0 #ff00ff; }
+            60% { color: var(--main-color); text-shadow: -1px 1px #ff0000; }
+            80% { color: #ff0044; text-shadow: 1px -1px #00ff00; }
+            100% { color: var(--main-color); text-shadow: none; }
+        }
+
+        /* Критический глитч — текст распадается */
+        .glitch-critical {
+            animation: glitch-critical 0.06s infinite;
+            text-shadow: -3px 0 #ff0000, 3px 0 #00ffff;
+        }
+        @keyframes glitch-critical {
+            0% { transform: translate(0) skewX(0) scaleX(1); clip-path: inset(0 0 0 0); }
+            10% { transform: translate(-6px, 4px) skewX(-5deg) scaleX(1.02); }
+            20% { transform: translate(5px, -3px) skewX(4deg) scaleX(0.98); clip-path: inset(20% 0 30% 0); }
+            30% { transform: translate(-4px, -2px) skewX(-3deg); clip-path: inset(0 0 0 0); }
+            40% { transform: translate(6px, 3px) skewX(5deg) scaleX(1.03); }
+            50% { transform: translate(-3px, 4px) skewX(-2deg); clip-path: inset(40% 0 10% 0); }
+            60% { transform: translate(4px, -4px) skewX(3deg) scaleX(0.97); clip-path: inset(0 0 0 0); }
+            70% { transform: translate(-5px, 2px) skewX(-4deg); }
+            80% { transform: translate(3px, -3px) skewX(2deg) scaleX(1.01); clip-path: inset(60% 0 5% 0); }
+            90% { transform: translate(-2px, 3px) skewX(-1deg); clip-path: inset(0 0 0 0); }
+            100% { transform: translate(0) skewX(0) scaleX(1); }
         }
 
         /* Глитч-полоса */
@@ -132,6 +178,14 @@
             position: absolute; left: 0; right: 0; height: 3px;
             background: rgba(255, 0, 255, 0.3); z-index: 15;
             pointer-events: none; display: none;
+        }
+        .glitch-bar.heavy {
+            height: 6px;
+            background: rgba(255, 0, 255, 0.6);
+        }
+        .glitch-bar.critical {
+            height: 10px;
+            background: linear-gradient(90deg, rgba(255,0,255,0.8), rgba(0,255,255,0.5), rgba(255,0,0,0.8));
         }
 
         /* Экран победы */
@@ -579,33 +633,94 @@
     // ==========================================
     // ГЛИТЧ-ЭФФЕКТЫ
     // ==========================================
+    function getGlitchLevel() {
+        // Уровень глитча зависит от комбинации control и bond
+        // 0 = нет, 1 = лёгкий, 2 = средний, 3 = сильный, 4 = критический
+        if (control <= 20 && bond >= 80) return 4;  // combo danger zone
+        if (control <= 20 || bond >= 90) return 3;   // одна шкала критична
+        if (control <= 35 || bond >= 75) return 2;   // тревожно
+        if (control <= 50 || bond >= 60) return 1;   // начало
+        return 0;
+    }
+
     function triggerGlitchBar() {
         const bar = document.getElementById('glitch-bar');
         if (!bar) return;
+        const level = getGlitchLevel();
+        bar.className = 'glitch-bar';
+        if (level >= 4) bar.classList.add('critical');
+        else if (level >= 3) bar.classList.add('heavy');
+
         bar.style.display = 'block';
         bar.style.top = Math.random() * 100 + '%';
-        setTimeout(() => { bar.style.display = 'none'; }, 100 + Math.random() * 200);
+
+        // Длительность зависит от уровня
+        const duration = level >= 3 ? (200 + Math.random() * 400) : (80 + Math.random() * 200);
+        setTimeout(() => { bar.style.display = 'none'; }, duration);
+
+        // На высоких уровнях — несколько полос одновременно
+        if (level >= 3 && Math.random() > 0.5) {
+            setTimeout(() => {
+                bar.style.display = 'block';
+                bar.style.top = Math.random() * 100 + '%';
+                setTimeout(() => { bar.style.display = 'none'; }, 100 + Math.random() * 150);
+            }, 100);
+        }
     }
 
+    // Периодические глитчи — частота зависит от уровня
     setInterval(() => {
-        if (bond >= 70) triggerGlitchBar();
-    }, 2000 + Math.random() * 3000);
+        const level = getGlitchLevel();
+        if (level >= 1) {
+            triggerGlitchBar();
+            // На высоких уровнях — чаще
+            if (level >= 3 && Math.random() > 0.3) {
+                setTimeout(triggerGlitchBar, 300 + Math.random() * 500);
+            }
+            if (level >= 4) {
+                setTimeout(triggerGlitchBar, 800 + Math.random() * 400);
+            }
+        }
+    }, 1500 + Math.random() * 2000);
 
     function applyGlitchEffects() {
-        const patientMsgs = document.querySelectorAll('.msg.patient');
-        patientMsgs.forEach(msg => {
-            msg.classList.remove('glitch-text', 'glitch-color');
+        const allGlitchClasses = ['glitch-light', 'glitch-text', 'glitch-heavy', 'glitch-critical', 'glitch-color'];
+
+        // Собираем все сообщения от маньяка (реплики + реакции)
+        const objectMsgs = document.querySelectorAll('.msg.reaction-text, .msg.scene-text');
+        objectMsgs.forEach(msg => {
+            allGlitchClasses.forEach(c => msg.classList.remove(c));
         });
 
-        if (bond >= 80) {
-            const msgs = document.querySelectorAll('.msg.patient');
-            const lastMsg = msgs[msgs.length - 1];
-            if (lastMsg) {
-                lastMsg.classList.add('glitch-text');
-                if (bond >= 90) {
-                    lastMsg.classList.add('glitch-color');
-                }
-            }
+        const level = getGlitchLevel();
+        if (level === 0) return;
+
+        // Применяем ко ВСЕМ репликам маньяка/сцен
+        const allMsgs = document.querySelectorAll('.msg.reaction-text, .msg.scene-text');
+
+        if (level >= 4) {
+            // КРИТИЧЕСКИЙ: все реплики распадаются + цвет
+            allMsgs.forEach(msg => {
+                msg.classList.add('glitch-critical', 'glitch-color');
+            });
+        } else if (level >= 3) {
+            // СИЛЬНЫЙ: все реплики сильно трясутся + цвет на последних
+            allMsgs.forEach(msg => {
+                msg.classList.add('glitch-heavy');
+            });
+            const last = allMsgs[allMsgs.length - 1];
+            if (last) last.classList.add('glitch-color');
+        } else if (level >= 2) {
+            // СРЕДНИЙ: все реплики трясутся
+            allMsgs.forEach(msg => {
+                msg.classList.add('glitch-text');
+            });
+        } else if (level >= 1) {
+            // ЛЁГКИЙ: последние несколько реплик слегка дрожат
+            const recent = Array.from(allMsgs).slice(-3);
+            recent.forEach(msg => {
+                msg.classList.add('glitch-light');
+            });
         }
     }
 
