@@ -73,8 +73,9 @@
         .msg { margin-bottom: 12px; line-height: 1.5; font-size: 0.9em; }
         .patient { color: var(--main-color); }
         .doctor { color: #4dff88; text-align: right; }
-        .scene-text { color: #777; font-style: italic; margin-bottom: 15px; line-height: 1.5; font-size: 0.85em; }
-        .reaction-text { color: #aa6644; margin-bottom: 12px; line-height: 1.5; font-size: 0.88em; }
+        .scene-text { color: #666; font-style: italic; margin-bottom: 15px; line-height: 1.5; font-size: 0.85em; }
+        .object-speech { color: var(--main-color); margin-bottom: 12px; line-height: 1.5; font-size: 0.9em; }
+        .reaction-text { color: var(--main-color); margin-bottom: 12px; line-height: 1.5; font-size: 0.9em; }
         .system-msg { color: #444; text-align: center; font-size: 0.75em; letter-spacing: 2px; margin: 15px 0; }
 
         /* Мигающий курсор */
@@ -186,6 +187,84 @@
         .glitch-bar.critical {
             height: 10px;
             background: linear-gradient(90deg, rgba(255,0,255,0.8), rgba(0,255,255,0.5), rgba(255,0,0,0.8));
+        }
+
+        /* Вспышка помех при изменении связи */
+        .screen-flash {
+            position: absolute; inset: 0; z-index: 12;
+            pointer-events: none; opacity: 0;
+        }
+        .screen-flash.active {
+            animation: screen-noise-flash 0.4s ease-out;
+        }
+        .screen-flash.heavy-flash {
+            animation: screen-noise-heavy 0.6s ease-out;
+        }
+        @keyframes screen-noise-flash {
+            0% { opacity: 0.5; background: repeating-linear-gradient(
+                0deg,
+                transparent 0px,
+                rgba(255,0,255,0.1) 2px,
+                transparent 4px,
+                rgba(0,255,255,0.08) 6px
+            ); }
+            30% { opacity: 0.3; }
+            100% { opacity: 0; }
+        }
+        @keyframes screen-noise-heavy {
+            0% { opacity: 0.8; background: repeating-linear-gradient(
+                0deg,
+                rgba(255,0,0,0.15) 0px,
+                transparent 1px,
+                rgba(255,0,255,0.2) 3px,
+                transparent 4px,
+                rgba(0,255,255,0.15) 5px,
+                transparent 7px
+            ); }
+            15% { opacity: 0.6; background: repeating-linear-gradient(
+                0deg,
+                transparent 0px,
+                rgba(255,255,255,0.15) 1px,
+                transparent 2px,
+                rgba(255,0,0,0.2) 4px,
+                transparent 5px
+            ); }
+            40% { opacity: 0.3; }
+            100% { opacity: 0; }
+        }
+
+        /* Постоянный шум на экране при высокой связи */
+        .noise-overlay {
+            position: absolute; inset: 0; z-index: 11;
+            pointer-events: none; opacity: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            mix-blend-mode: overlay;
+            transition: opacity 0.5s;
+        }
+        .noise-overlay.level-1 { opacity: 0.03; }
+        .noise-overlay.level-2 { opacity: 0.06; }
+        .noise-overlay.level-3 { opacity: 0.1; animation: noise-flicker 0.1s infinite; }
+        .noise-overlay.level-4 { opacity: 0.15; animation: noise-flicker 0.05s infinite; }
+        @keyframes noise-flicker {
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(-1px, 1px); }
+            100% { transform: translate(1px, -1px); }
+        }
+
+        /* Вертикальная полоса-помеха */
+        .v-glitch {
+            position: absolute; top: 0; bottom: 0; width: 0; z-index: 13;
+            pointer-events: none; display: none;
+            background: rgba(255, 0, 255, 0.15);
+        }
+        .v-glitch.active {
+            display: block;
+            animation: v-glitch-sweep 0.3s ease-out forwards;
+        }
+        @keyframes v-glitch-sweep {
+            0% { width: 8px; opacity: 1; }
+            50% { width: 15px; opacity: 0.6; }
+            100% { width: 0; opacity: 0; }
         }
 
         /* Экран победы */
@@ -336,6 +415,12 @@
     <div class="cam-info">CAM-04 | КОРПУС-В | <span id="cam-time"></span></div>
     <!-- Глитч-полоса -->
     <div id="glitch-bar" class="glitch-bar"></div>
+    <!-- Шум на экране -->
+    <div id="noise-overlay" class="noise-overlay"></div>
+    <!-- Вспышка помех -->
+    <div id="screen-flash" class="screen-flash"></div>
+    <!-- Вертикальная помеха -->
+    <div id="v-glitch" class="v-glitch"></div>
 
     <div class="stats">
         <div id="state-image"><img id="state-img" src="state_1.png" alt="Объект 31"></div>
@@ -686,17 +771,18 @@
     function applyGlitchEffects() {
         const allGlitchClasses = ['glitch-light', 'glitch-text', 'glitch-heavy', 'glitch-critical', 'glitch-color'];
 
-        // Собираем все сообщения от маньяка (реплики + реакции)
-        const objectMsgs = document.querySelectorAll('.msg.reaction-text, .msg.scene-text');
-        objectMsgs.forEach(msg => {
+        // Собираем ВСЕ сообщения от маньяка
+        const allMsgs = document.querySelectorAll('.msg.object-speech, .msg.reaction-text');
+        allMsgs.forEach(msg => {
             allGlitchClasses.forEach(c => msg.classList.remove(c));
         });
 
         const level = getGlitchLevel();
-        if (level === 0) return;
 
-        // Применяем ко ВСЕМ репликам маньяка/сцен
-        const allMsgs = document.querySelectorAll('.msg.reaction-text, .msg.scene-text');
+        // Обновляем шум на экране
+        updateNoiseOverlay(level);
+
+        if (level === 0) return;
 
         if (level >= 4) {
             // КРИТИЧЕСКИЙ: все реплики распадаются + цвет
@@ -722,6 +808,69 @@
                 msg.classList.add('glitch-light');
             });
         }
+    }
+
+    // ==========================================
+    // ВИЗУАЛЬНЫЙ ШУМ И ПОМЕХИ
+    // ==========================================
+
+    // Постоянный шум на экране
+    function updateNoiseOverlay(level) {
+        const noise = document.getElementById('noise-overlay');
+        if (!noise) return;
+        noise.className = 'noise-overlay';
+        if (level >= 4) noise.classList.add('level-4');
+        else if (level >= 3) noise.classList.add('level-3');
+        else if (level >= 2) noise.classList.add('level-2');
+        else if (level >= 1) noise.classList.add('level-1');
+    }
+
+    // Вспышка помех при изменении связи
+    function triggerScreenFlash(heavy) {
+        const flash = document.getElementById('screen-flash');
+        if (!flash) return;
+        flash.className = 'screen-flash';
+        // Force reflow
+        void flash.offsetWidth;
+        flash.classList.add(heavy ? 'heavy-flash' : 'active');
+        setTimeout(() => { flash.className = 'screen-flash'; }, heavy ? 600 : 400);
+    }
+
+    // Вертикальная помеха
+    function triggerVGlitch() {
+        const vg = document.getElementById('v-glitch');
+        if (!vg) return;
+        vg.style.left = Math.random() * 100 + '%';
+        vg.className = 'v-glitch';
+        void vg.offsetWidth;
+        vg.classList.add('active');
+        setTimeout(() => { vg.className = 'v-glitch'; }, 300);
+    }
+
+    // Комплексная помеха — вызывается при изменении статов
+    let prevBond = 20;
+    function triggerStatChangeEffects() {
+        const bondDelta = bond - prevBond;
+        const level = getGlitchLevel();
+
+        if (bondDelta > 0) {
+            // Связь растёт — помехи!
+            triggerScreenFlash(bondDelta >= 15 || level >= 3);
+            triggerGlitchBar();
+
+            // При сильном росте — дополнительные эффекты
+            if (bondDelta >= 10 || level >= 2) {
+                setTimeout(triggerVGlitch, 100);
+                setTimeout(triggerGlitchBar, 200);
+            }
+            if (bondDelta >= 15 || level >= 3) {
+                setTimeout(triggerVGlitch, 300);
+                setTimeout(triggerGlitchBar, 400);
+                setTimeout(triggerVGlitch, 500);
+            }
+        }
+
+        prevBond = bond;
     }
 
     // ==========================================
@@ -781,6 +930,7 @@
         else statusText.innerHTML = `СТАТУС: Наблюдение... К:${control} С:${bond}`;
 
         applyGlitchEffects();
+        triggerStatChangeEffects();
     }
 
     // ==========================================
@@ -827,6 +977,38 @@
     // ==========================================
     // ДОБАВЛЕНИЕ СООБЩЕНИЙ
     // ==========================================
+
+    // Разбивает текст сцены на блоки: описание (серое) и прямая речь (красная)
+    function splitSceneText(text) {
+        const lines = text.split('\n');
+        const blocks = [];
+        let currentBlock = { type: 'scene', lines: [] };
+
+        for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) {
+                // Пустая строка — добавим перенос
+                currentBlock.lines.push('');
+                continue;
+            }
+
+            // Прямая речь маньяка: начинается с — или "Объект:"
+            const isSpeech = trimmed.startsWith('—') || trimmed.startsWith('«') || trimmed.startsWith('"');
+
+            if (isSpeech && currentBlock.type !== 'speech') {
+                if (currentBlock.lines.length > 0) blocks.push(currentBlock);
+                currentBlock = { type: 'speech', lines: [trimmed] };
+            } else if (!isSpeech && currentBlock.type !== 'scene') {
+                if (currentBlock.lines.length > 0) blocks.push(currentBlock);
+                currentBlock = { type: 'scene', lines: [trimmed] };
+            } else {
+                currentBlock.lines.push(trimmed);
+            }
+        }
+        if (currentBlock.lines.length > 0) blocks.push(currentBlock);
+        return blocks;
+    }
+
     async function addMessage(text, cssClass, useTyping) {
         const div = document.createElement('div');
         div.className = `msg ${cssClass}`;
@@ -837,10 +1019,23 @@
             document.getElementById('messages').scrollTop = 999999;
             await typeText(div, text, 20);
         } else if (useTyping && cssClass === 'scene-text') {
-            document.getElementById('messages').appendChild(div);
-            document.getElementById('messages').scrollTop = 999999;
-            await typeText(div, text, 12);
+            // Разбиваем на описание и прямую речь
+            const blocks = splitSceneText(text);
+            for (const block of blocks) {
+                const blockDiv = document.createElement('div');
+                const blockText = block.lines.join('\n');
+                if (block.type === 'speech') {
+                    blockDiv.className = 'msg object-speech';
+                } else {
+                    blockDiv.className = 'msg scene-text';
+                }
+                document.getElementById('messages').appendChild(blockDiv);
+                document.getElementById('messages').scrollTop = 999999;
+                await typeText(blockDiv, blockText, block.type === 'speech' ? 18 : 12);
+            }
+            return; // Не добавляем div — уже добавили блоки
         } else if (useTyping && cssClass === 'reaction-text') {
+            div.className = 'msg object-speech';
             div.innerText = '— ';
             document.getElementById('messages').appendChild(div);
             document.getElementById('messages').scrollTop = 999999;
