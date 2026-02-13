@@ -1733,41 +1733,84 @@
     // ==========================================
     function printReport() {
         const specialistName = nameUnlocked ? 'Лизавета' : 'Доктор Е. Лалетина';
-        const printContent = `
-            <div style="font-family: 'Courier New', monospace; padding: 40px; max-width: 600px; margin: 0 auto;">
-                <div style="text-align: center; border: 2px solid #000; padding: 15px; margin-bottom: 30px;">
-                    <div style="letter-spacing: 3px; font-size: 0.85em;">УЧРЕЖДЕНИЕ ЗАКРЫТОГО ТИПА</div>
-                    <div style="letter-spacing: 2px; font-size: 0.8em; margin-top: 5px;">КОРПУС В</div>
-                </div>
-                <h2 style="text-align: center; letter-spacing: 3px;">РАПОРТ №031-С</h2>
-                <table style="width: 100%; margin: 20px 0; border-collapse: collapse; font-size: 0.9em;">
-                    <tr><td style="padding: 5px 0; color: #666;">Специалист:</td><td style="padding: 5px 0;">${specialistName}</td></tr>
-                    <tr><td style="padding: 5px 0; color: #666;">Объект:</td><td style="padding: 5px 0;">№31</td></tr>
-                    <tr><td style="padding: 5px 0; color: #666;">Дата:</td><td style="padding: 5px 0;">14.02.2026</td></tr>
-                    <tr><td style="padding: 5px 0; color: #666;">Статус:</td><td style="padding: 5px 0; font-weight: bold;">ЗАВЕРШЕНА</td></tr>
-                    <tr><td style="padding: 5px 0; color: #666;">Оценка:</td><td style="padding: 5px 0; font-weight: bold;">ИСКЛЮЧИТЕЛЬНАЯ</td></tr>
-                </table>
-                <p style="margin: 20px 0; line-height: 1.6; font-size: 0.9em;">
-                    Объект впервые за 14 месяцев вступил в продуктивный контакт. Рекомендовано продолжение курса.
-                </p>
-                <div style="border-top: 1px solid #ccc; margin-top: 40px; padding-top: 20px; text-align: center;">
-                    <div style="font-size: 1.5em; margin-bottom: 10px;">\u{1F5A4}</div>
-                    <p style="font-style: italic; line-height: 1.8;">
-                        С Днём святого Валентина.<br>
-                        Ты — лучшее, что случалось<br>
-                        по ту сторону стекла.
-                    </p>
-                </div>
-                <div style="border-top: 2px solid #000; margin-top: 30px; padding-top: 10px; text-align: center; font-size: 0.7em; color: #999;">
-                    14 февраля 2026
-                </div>
-            </div>
-        `;
+        const printWindow = window.open('', '', 'height=800,width=300');
+        printWindow.document.write(`<html><head><title>РАПОРТ №031-С</title>
+<style>
+    @page { size: 57mm auto; margin: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+        font-family: 'Courier New', monospace;
+        width: 57mm;
+        padding: 3mm 2mm;
+        font-size: 8px;
+        line-height: 1.4;
+        color: #000;
+    }
+    .center { text-align: center; }
+    .divider { border-top: 1px dashed #000; margin: 3mm 0; }
+    .divider-thick { border-top: 2px solid #000; margin: 3mm 0; }
+    .header { letter-spacing: 1px; font-size: 7px; }
+    .title { font-size: 10px; font-weight: bold; letter-spacing: 2px; margin: 2mm 0; }
+    .row { display: flex; justify-content: space-between; padding: 1px 0; font-size: 7.5px; }
+    .row .label { color: #555; }
+    .row .value { font-weight: bold; text-align: right; }
+    .note { font-size: 7px; color: #444; margin: 2mm 0; line-height: 1.5; }
+    .heart { font-size: 14px; margin: 3mm 0 2mm 0; }
+    .love { font-size: 8.5px; font-style: italic; line-height: 1.7; margin: 2mm 0; }
+    .footer { font-size: 6px; color: #888; margin-top: 3mm; }
+    .handwritten { font-size: 8px; font-style: italic; margin: 2mm 0; line-height: 1.6; }
+</style></head><body>
 
-        const printWindow = window.open('', '', 'height=700,width=800');
-        printWindow.document.write('<html><head><title>РАПОРТ №031-С</title></head><body>');
-        printWindow.document.write(printContent);
-        printWindow.document.write('</body></html>');
+<div class="center header">УЧРЕЖДЕНИЕ ЗАКРЫТОГО ТИПА</div>
+<div class="center header">КОРПУС В</div>
+
+<div class="divider-thick"></div>
+
+<div class="center title">РАПОРТ №031-С</div>
+
+<div class="divider"></div>
+
+<div class="row"><span class="label">Специалист</span><span class="value">${specialistName}</span></div>
+<div class="row"><span class="label">Объект</span><span class="value">№31</span></div>
+<div class="row"><span class="label">Дата</span><span class="value">14.02.2026</span></div>
+<div class="row"><span class="label">Статус</span><span class="value">ЗАВЕРШЕНА</span></div>
+<div class="row"><span class="label">Оценка</span><span class="value">ИСКЛЮЧИТЕЛЬНАЯ</span></div>
+
+<div class="divider"></div>
+
+<div class="note">Объект впервые за 14 месяцев вступил в продуктивный контакт. Рекомендовано продолжение курса.</div>
+
+<div class="divider"></div>
+
+<div class="handwritten">«Ты не поставила штамп. Спасибо.»</div>
+
+<div class="divider-thick"></div>
+
+<div class="center heart">\u{2764}\u{FE0F}</div>
+
+<div class="center love">
+Лизавета.<br>
+Ты мой самый любимый<br>
+человек на этой планете.<br>
+<br>
+Спасибо что ты есть.<br>
+Спасибо что выбираешь меня.<br>
+Спасибо что остаёшься.<br>
+<br>
+Я люблю тебя.<br>
+Каждый день. Без выходных.<br>
+Без права на апелляцию.<br>
+<br>
+С Днём святого Валентина.
+</div>
+
+<div class="divider"></div>
+
+<div class="center footer">14.02.2026 | \u{1F5A4}</div>
+
+<div style="margin-top:4mm;"></div>
+
+</body></html>`);
         printWindow.document.close();
         printWindow.print();
     }
